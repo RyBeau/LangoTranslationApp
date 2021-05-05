@@ -9,4 +9,7 @@
     <string name="note">Note:</string>
     <string name="share">Share</string>
     <string name="edit">Edit</string>
+    <string name="title_home">Home</string>
+    <string name="title_preferences">Preferences</string>
+    <string name="title_stored">Stored</string>
 </resources>
