@@ -19,8 +19,8 @@
         tools:layout="@layout/fragment_preferences" />
 
     <fragment
-        android:id="@+id/navigation_stored"
-        android:name="nz.ac.uclive.oam23.tbc.StoredTranslationsFragment"
-        android:label="@string/title_stored"
-        tools:layout="@layout/fragment_stored_translations" />
+        android:id="@+id/navigation_previous"
+        android:name="nz.ac.uclive.oam23.tbc.PreviousTranslationsFragment"
+        android:label="@string/title_previous_translations"
+        tools:layout="@layout/fragment_previous_translations" />
 </navigation>

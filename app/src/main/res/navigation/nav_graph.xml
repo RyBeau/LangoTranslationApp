@@ -12,7 +12,7 @@
         tools:layout="@layout/fragment_home" >
         <action
             android:id="@+id/action_homeFragment_to_storedTranslationsFragment"
-            app:destination="@id/storedTranslationsFragment" />
+            app:destination="@id/previousTranslationsFragment" />
         <action
             android:id="@+id/action_homeFragment_to_saveEditTranslationFragment"
             app:destination="@id/saveEditTranslationFragment" />
@@ -30,16 +30,16 @@
         tools:layout="@layout/fragment_save_edit_translation" >
         <action
             android:id="@+id/action_saveEditTranslationFragment_to_storedTranslationsFragment"
-            app:destination="@id/storedTranslationsFragment" />
+            app:destination="@id/previousTranslationsFragment" />
         <action
             android:id="@+id/action_saveEditTranslationFragment_to_homeFragment"
             app:destination="@id/homeFragment" />
     </fragment>
     <fragment
-        android:id="@+id/storedTranslationsFragment"
-        android:name="nz.ac.uclive.oam23.tbc.StoredTranslationsFragment"
+        android:id="@+id/previousTranslationsFragment"
+        android:name="nz.ac.uclive.oam23.tbc.PreviousTranslationsFragment"
         android:label="fragment_stored_translations"
-        tools:layout="@layout/fragment_stored_translations" >
+        tools:layout="@layout/fragment_previous_translations" >
         <action
             android:id="@+id/action_storedTranslationsFragment_to_homeFragment"
             app:destination="@id/homeFragment" />
@@ -69,6 +69,6 @@
             app:destination="@id/homeFragment" />
         <action
             android:id="@+id/action_viewTranslationFragment_to_storedTranslationsFragment"
-            app:destination="@id/storedTranslationsFragment" />
+            app:destination="@id/previousTranslationsFragment" />
     </fragment>
 </navigation>

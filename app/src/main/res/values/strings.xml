@@ -11,5 +11,9 @@
     <string name="edit">Edit</string>
     <string name="title_home">Home</string>
     <string name="title_preferences">Preferences</string>
-    <string name="title_stored">Stored</string>
+    <string name="title_previous_translations">Previous Translations</string>
+    <string name="nav_previous_translations">Previous</string>
+    <string name="date_desc">Date ▼</string>
+    <string name="date_asc">Date ▲</string>
+    <string name="original_text_no_colon">Original Text</string>
 </resources>
