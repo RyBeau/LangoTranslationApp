@@ -16,4 +16,5 @@
     <string name="date_desc">Date ▼</string>
     <string name="date_asc">Date ▲</string>
     <string name="original_text_no_colon">Original Text</string>
+    <string name="save" >Save</string>
 </resources>
