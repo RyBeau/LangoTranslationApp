@@ -21,6 +21,6 @@
     <fragment
         android:id="@+id/navigation_stored"
         android:name="nz.ac.uclive.oam23.tbc.StoredTranslationsFragment"
-        android:label="@string/title_stored"
+        android:label="@string/title_previous_translations"
         tools:layout="@layout/fragment_stored_translations" />
 </navigation>
