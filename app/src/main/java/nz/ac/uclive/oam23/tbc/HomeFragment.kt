@@ -1,20 +1,17 @@
 package nz.ac.uclive.oam23.tbc
 
-import android.content.ActivityNotFoundException
+import android.app.Activity
 import android.content.Intent
-import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
-import android.os.Environment.getExternalStoragePublicDirectory
 import android.provider.MediaStore
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.content.FileProvider
-import androidx.recyclerview.widget.RecyclerView
+import androidx.fragment.app.Fragment
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
@@ -26,7 +23,6 @@ import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.jvm.Throws
-import kotlin.math.log
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -48,10 +44,14 @@ class HomeFragment : Fragment() {
 
     lateinit var currentPhotoPath: String
 
+    /**
+     * Creates a unique filename using the current date.
+     * Currently saves files to EXTERNAL storage.
+     */
     @Throws(IOException::class)
-    private fun createImageFile(): File {
+    private fun createImageFileName(): File {
         // Create an image file name
-        val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
+        val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.ENGLISH).format(Date())
         val storageDir: File? = context?.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
         return File.createTempFile(
                 "JPEG_${timeStamp}_", /* prefix */
@@ -63,21 +63,38 @@ class HomeFragment : Fragment() {
         }
     }
 
+    /**
+     * If a photo is successfully taken and saved, show a toast to the user.
+     */
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == REQUEST_IMAGE_CAPTURE) {
+            // It came from our call
+            if (resultCode == Activity.RESULT_OK) {
+                // The result was successful
+                Toast.makeText(activity?.applicationContext, "Photo successfully taken!", Toast.LENGTH_LONG).show()
+            }
+        }
+    }
 
-    private fun dispatchTakePictureIntent() {
+
+    /**
+     * Requests to take a photo using intents.
+     * If a photo is sucessfully taken, saves it into
+     */
+    private fun takeImage() {
         Intent(MediaStore.ACTION_IMAGE_CAPTURE).also { takePictureIntent ->
             // Ensure that there's a camera activity to handle the intent
             context?.packageManager?.let {
                 takePictureIntent.resolveActivity(it)?.also {
                     // Create the File where the photo should go
                     try {
-                        val photoFile: File? = createImageFile()
-                        photoFile.also {file ->
+                        val photoFile: File? = createImageFileName()
+                        photoFile.also { file ->
                             if (file !== null) {
                                 val photoURI: Uri? = activity?.applicationContext?.let { context ->
                                     FileProvider.getUriForFile(
                                             context,
-                                            "com.example.android.fileprovider",
+                                            "nz.ac.uclive.oam23.tbc.android.fileprovider",
                                             file
                                     )
                                 }
@@ -85,11 +102,10 @@ class HomeFragment : Fragment() {
                                 startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
                             }
                         }
-                    } catch (ex: IOException) {
+                    } catch (e: IOException) {
                         // Error occurred while creating the File
                         Toast.makeText(activity?.applicationContext, "Error occurred while creating the file.", Toast.LENGTH_LONG).show()
                     }
-                    // Continue only if the File was successfully created
                 }
             }
         }
@@ -125,20 +141,18 @@ class HomeFragment : Fragment() {
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+            inflater: LayoutInflater, container: ViewGroup?,
+            savedInstanceState: Bundle?
     ): View? {
-        val view =  inflater.inflate(R.layout.fragment_home, container, false)
+        val view = inflater.inflate(R.layout.fragment_home, container, false)
         // Inflate the layout for this fragment
 
         //Set up image capturing
         val cameraButton = view.findViewById<FloatingActionButton>(R.id.cameraButton)
         cameraButton.setOnClickListener {
-            val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
             try {
-                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
-//                createImageFile()
-//                dispatchTakePictureIntent()
+                createImageFileName()
+                takeImage()
             } catch (e: SecurityException) {
                 Toast.makeText(context, "Error: Please ensure you have appropriate camera permissions in your phone settings", Toast.LENGTH_LONG).show()
             }
@@ -158,11 +172,11 @@ class HomeFragment : Fragment() {
         // TODO: Rename and change types and number of parameters
         @JvmStatic
         fun newInstance(param1: String, param2: String) =
-            HomeFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+                HomeFragment().apply {
+                    arguments = Bundle().apply {
+                        putString(ARG_PARAM1, param1)
+                        putString(ARG_PARAM2, param2)
+                    }
                 }
-            }
     }
 }
