@@ -9,7 +9,10 @@ import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
-class StoredTranslationsFragment : Fragment(), PreviousTranslationAdapter.OnPreviousTranslationListener {
+/**
+ * Fragment for viewing previous translations
+ */
+class PreviousTranslationsFragment : Fragment(), PreviousTranslationAdapter.OnPreviousTranslationListener {
 
     private val tempTranslationsList = arrayOf<PreviousTranslation>(
         PreviousTranslation("1/1/2021", "Test Text"),
@@ -28,7 +31,7 @@ class StoredTranslationsFragment : Fragment(), PreviousTranslationAdapter.OnPrev
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view =  inflater.inflate(R.layout.fragment_stored_translations, container, false)
+        val view =  inflater.inflate(R.layout.fragment_previous_translations, container, false)
         val translationAdapter = PreviousTranslationAdapter(tempTranslationsList, this)
         val recyclerView = view.findViewById<RecyclerView>(R.id.previousTranslationsViewer)
         recyclerView.apply {

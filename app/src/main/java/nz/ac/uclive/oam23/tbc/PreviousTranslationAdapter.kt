@@ -6,8 +6,14 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
+/**
+ * Temporary Class definition
+ */
 class PreviousTranslation(val date: String, val originalText: String){}
 
+/**
+ * Adapter for the StoredTranslationFragment
+ */
 class PreviousTranslationAdapter(private var translations: Array<PreviousTranslation>, private val onPreviousTranslationListener: OnPreviousTranslationListener)
     : RecyclerView.Adapter<PreviousTranslationAdapter.PreviousTranslationViewHolder>() {
 
