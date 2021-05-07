@@ -1,7 +1,11 @@
 package nz.ac.uclive.oam23.tbc
 
+import android.Manifest
 import android.app.Activity
+import android.app.AlertDialog
+import android.content.DialogInterface
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
@@ -10,9 +14,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
@@ -40,9 +47,31 @@ class HomeFragment : Fragment() {
     private var param1: String? = null
     private var param2: String? = null
     val REQUEST_IMAGE_CAPTURE = 1
-
+    val REQUEST_FINE_LOCATION = 2
+    lateinit var googleMapRef: GoogleMap
 
     lateinit var currentPhotoPath: String
+
+    /**
+     * Handles feedback to the user after permissions are accepted.
+     */
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        when (requestCode) {
+            REQUEST_FINE_LOCATION -> {
+                if (resultCode == Activity.RESULT_OK) {
+                    try {
+                        googleMapRef.isMyLocationEnabled = true
+                    } catch (e: SecurityException) {
+                    }
+                }
+            }
+            REQUEST_IMAGE_CAPTURE -> {
+                if (resultCode == Activity.RESULT_OK) {
+                    Toast.makeText(requireActivity(), R.string.on_photo_success, Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
 
     /**
      * Creates a unique filename using the current date.
@@ -64,22 +93,8 @@ class HomeFragment : Fragment() {
     }
 
     /**
-     * If a photo is successfully taken and saved, show a toast to the user.
-     */
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode == REQUEST_IMAGE_CAPTURE) {
-            // It came from our call
-            if (resultCode == Activity.RESULT_OK) {
-                // The result was successful
-                Toast.makeText(activity?.applicationContext, "Photo successfully taken!", Toast.LENGTH_LONG).show()
-            }
-        }
-    }
-
-
-    /**
      * Requests to take a photo using intents.
-     * If a photo is sucessfully taken, saves it into
+     * If a photo is successfully taken, saves it into EXTERNAL storage.
      */
     private fun takeImage() {
         Intent(MediaStore.ACTION_IMAGE_CAPTURE).also { takePictureIntent ->
@@ -91,7 +106,7 @@ class HomeFragment : Fragment() {
                         val photoFile: File? = createImageFileName()
                         photoFile.also { file ->
                             if (file !== null) {
-                                val photoURI: Uri? = activity?.applicationContext?.let { context ->
+                                val photoURI: Uri? = requireActivity().let { context ->
                                     FileProvider.getUriForFile(
                                             context,
                                             "nz.ac.uclive.oam23.tbc.android.fileprovider",
@@ -104,7 +119,7 @@ class HomeFragment : Fragment() {
                         }
                     } catch (e: IOException) {
                         // Error occurred while creating the File
-                        Toast.makeText(activity?.applicationContext, "Error occurred while creating the file.", Toast.LENGTH_LONG).show()
+                        Toast.makeText(requireActivity(), "Error occurred while creating the file.", Toast.LENGTH_LONG).show()
                     }
                 }
             }
@@ -117,10 +132,72 @@ class HomeFragment : Fragment() {
      * Add markers/move camera/set zoom here as required.
      */
     private val callback = OnMapReadyCallback { googleMap ->
-
+        googleMapRef = googleMap
         val sydney = LatLng(-34.0, 151.0)
         googleMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
         googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
+
+        //Set up users location.
+        try {
+            googleMap.isMyLocationEnabled = true
+        } catch (e: SecurityException) {
+            getMapPermissions()
+        }
+//        googleMap.setOnMyLocationButtonClickListener(this)
+//        googleMap.setOnMyLocationClickListener(this)
+
+    }
+
+    /**
+     * Requests for the users map permissions.
+     */
+    fun requestMapPermission() {
+        ActivityCompat.requestPermissions(requireActivity(),
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                REQUEST_FINE_LOCATION)
+    }
+
+    /**
+     * Creates an AlertDialog telling the user the benefits of enabling permissions.
+     * On confirm, they will be requested to enable their map permissions.
+     */
+    fun buildMapAlert() {
+        val builder = AlertDialog.Builder(requireActivity())
+        builder.setMessage(R.string.map_permission_dialog)
+                .setPositiveButton(R.string.dialog_confirm,
+                        DialogInterface.OnClickListener { _, _ ->
+                            requestMapPermission()
+                        })
+                .setNegativeButton(R.string.dialog_cancel,
+                        DialogInterface.OnClickListener { _, _ ->
+                        })
+        // Create the AlertDialog object and return it
+        builder.create()
+        val dialog: AlertDialog? = builder.create()
+        dialog?.show()
+    }
+
+    /**
+     * Calls appropriate permission request dialogs.
+     */
+    fun getMapPermissions() {
+        when {
+            ContextCompat.checkSelfPermission(
+                    requireActivity(),
+                    Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED -> {
+
+            }
+            shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION) -> {
+                buildMapAlert()
+            }
+            else -> {
+                // You can directly ask for the permission.
+                requestMapPermission()
+            }
+
+        }
+
     }
 
     /**

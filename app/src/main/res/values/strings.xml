@@ -16,4 +16,11 @@
     <string name="date_desc">Date ▼</string>
     <string name="date_asc">Date ▲</string>
     <string name="original_text_no_colon">Original Text</string>
+
+    <string name="dialog_confirm">Ok</string>
+    <string name="dialog_cancel">Cancel</string>
+    <string name="on_photo_success">Photo successfully taken!</string>
+
+
+    <string name="map_permission_dialog">Please enable location services or else you won\'t be able to save the location of your images.</string>
 </resources>
