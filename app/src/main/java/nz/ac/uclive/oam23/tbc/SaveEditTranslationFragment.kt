@@ -1,32 +1,55 @@
 package nz.ac.uclive.oam23.tbc
 
 import android.os.Bundle
+import android.view.*
+import android.widget.Toast
+import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import androidx.fragment.app.activityViewModels
+import androidx.navigation.Navigation
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [SaveEditTranslationFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class SaveEditTranslationFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
+    private val viewModel: TranslationsViewModel by activityViewModels()
+
+//    var toolbar: Toolbar? = null
+//    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+//        toolbar = view?.findViewById<Toolbar>(R.id.toolbar)
+//        toolbar?.inflateMenu(R.menu.edit_save_menu)
+//
+//        toolbar?.setOnMenuItemClickListener {
+//            when (it.itemId) {
+//                R.id.back_action -> {
+//                    Toast.makeText(context, "Back", Toast.LENGTH_SHORT).show()
+//                    true
+//                }
+//                R.id.delete_action -> {
+//                    Toast.makeText(context, "Delete", Toast.LENGTH_SHORT).show()
+//                    viewModel.deleteTranslation(viewModel.selectedIndex.value!!)
+//                    true
+//                }
+//                else -> false
+//            }
+//        }
+//    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+
+        when (item.itemId) {
+            R.id.back_action -> {
+                Toast.makeText(context, "Back", Toast.LENGTH_SHORT).show()
+                true
+            }
+            R.id.delete_action -> {
+                Toast.makeText(context, "Delete", Toast.LENGTH_SHORT).show()
+                true
+            }
+            else -> false
         }
+
+        return super.onOptionsItemSelected(item)
+
+
     }
 
     override fun onCreateView(
@@ -34,26 +57,18 @@ class SaveEditTranslationFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_save_edit_translation, container, false)
+        val view = inflater.inflate(R.layout.fragment_save_edit_translation, container, false)
+
+        setHasOptionsMenu(true)
+
+        return view
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment SaveEditTranslationFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            SaveEditTranslationFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
-    }
+//    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+//        super.onViewCreated(view, savedInstanceState)
+//
+//        toolbar?.setNavigationIcon(R.drawable.ic_launcher_foreground)
+//        toolbar?.setNavigationOnClickListener (Navigation.createNavigateOnClickListener(R.id.action_saveEditTranslationFragment_to_homeFragment))
+//    }
+
 }

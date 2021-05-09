@@ -17,4 +17,9 @@
         android:icon="@drawable/ic_view_list_black_24dp"
         android:title="@string/nav_previous_translations" />
 
+    <item
+        android:id="@+id/navigation_saveedit"
+        android:icon="@drawable/ic_view_list_black_24dp"
+        android:title="Save/edit" />
+
 </menu>
