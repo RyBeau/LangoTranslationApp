@@ -20,6 +20,15 @@ class TranslationsViewModel: ViewModel() {
         PreviousTranslation("7/1/2021", "Test Text"),
         PreviousTranslation("8/1/2021", "Test Text"),
         PreviousTranslation("9/1/2021", "Test Text Longest Text of all"),
+        PreviousTranslation("1/1/2021", "Test Text"),
+        PreviousTranslation("2/1/2021", "Test Text"),
+        PreviousTranslation("3/1/2021", "Test Text Longer"),
+        PreviousTranslation("4/1/2021", "Test Text"),
+        PreviousTranslation("5/1/2021", "Test Text"),
+        PreviousTranslation("6/1/2021", "Test Text Longer"),
+        PreviousTranslation("7/1/2021", "Test Text"),
+        PreviousTranslation("8/1/2021", "Test Text"),
+        PreviousTranslation("9/1/2021", "Test Text Longest Text of all"),
         PreviousTranslation("10/1/2021", "Test Text"))
     )
     val tempTranslationsList: LiveData<MutableList<PreviousTranslation>>
