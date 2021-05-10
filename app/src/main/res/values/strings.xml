@@ -16,4 +16,7 @@
     <string name="date_desc">Date ▼</string>
     <string name="date_asc">Date ▲</string>
     <string name="original_text_no_colon">Original Text</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="go_back_confirmation">Are you sure you want to go back?</string>
 </resources>
