@@ -17,4 +17,10 @@
     <string name="date_asc">Date ▲</string>
     <string name="original_text_no_colon">Original Text</string>
     <string name="save" >Save</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="go_back_confirmation">Are you sure you want to go back?</string>
+    <string name="camera">Camera</string>
+    <string name="permissions_granted">Permissions Granted</string>
+    <string name="permissions_denied">Permissions Denied</string>
 </resources>

@@ -22,6 +22,8 @@ class PreviousTranslationsFragment : Fragment(), PreviousTranslationAdapter.OnPr
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        val mainActivity = activity as MainActivity
+        mainActivity.setLocation(MainActivity.Location.PREVIOUS_TRANSLATIONS)
         val view =  inflater.inflate(R.layout.fragment_previous_translations, container, false)
         val translationAdapter = PreviousTranslationAdapter(viewModel.tempTranslationsList.value!!, this)
         val recyclerView = view.findViewById<RecyclerView>(R.id.previousTranslationsViewer)
