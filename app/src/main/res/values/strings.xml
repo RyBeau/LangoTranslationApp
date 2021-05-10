@@ -19,4 +19,5 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="go_back_confirmation">Are you sure you want to go back?</string>
+    <string name="camera">Camera</string>
 </resources>
