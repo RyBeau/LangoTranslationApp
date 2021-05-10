@@ -24,6 +24,8 @@ class ViewTranslationFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        val mainActivity = activity as MainActivity
+        mainActivity.setLocation(MainActivity.Location.VIEW_TRANSLATION)
         return inflater.inflate(R.layout.fragment_view_translation, container, false)
     }
 
