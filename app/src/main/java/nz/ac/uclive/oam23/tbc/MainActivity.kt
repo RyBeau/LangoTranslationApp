@@ -92,6 +92,9 @@ class MainActivity: AppCompatActivity() {
         navView.setupWithNavController(navController)
     }
 
+    /**
+     * Callback function for permission request
+     */
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == PERMISSIONS_REQUEST_CODE) {
@@ -105,12 +108,18 @@ class MainActivity: AppCompatActivity() {
         }
     }
 
+    /**
+     * Checks if the permissions have been granted, if not it requests them.
+     */
     fun checkPermissions(){
         if(!hasPermissions(this)){
             requestPermissions(PERMISSIONS_REQUIRED, PERMISSIONS_REQUEST_CODE)
         }
     }
 
+    /**
+     * Companion object checks if permissions have been met.
+     */
     companion object {
         fun hasPermissions(context: Context): Boolean = PERMISSIONS_REQUIRED.all {
             ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
