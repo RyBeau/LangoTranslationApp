@@ -59,14 +59,10 @@ class SaveEditTranslationFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        val view = inflater.inflate(R.layout.fragment_save_edit_translation, container, false)
-
-//        setHasOptionsMenu(true)
-
+        val mainActivity = activity as MainActivity
+        mainActivity.setLocation(MainActivity.Location.SAVE_EDIT_TRANSLATION)
         viewModel.tempStartingValue()
-
-        return view
+        return inflater.inflate(R.layout.fragment_save_edit_translation, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
