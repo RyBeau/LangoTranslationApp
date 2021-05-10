@@ -68,11 +68,12 @@
                 android:text="@string/original_text"
                 android:textSize="18sp" />
 
-            <TextView
+            <EditText
                 android:id="@+id/originalTextEdit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/border"
+                android:inputType="text"
                 android:minHeight="150dp"
                 android:padding="3dp"
                 android:textSize="16sp" />

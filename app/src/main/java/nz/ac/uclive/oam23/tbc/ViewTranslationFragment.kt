@@ -47,9 +47,9 @@ class ViewTranslationFragment : Fragment() {
             if (translation != null) {
                 date?.text = translation.date
                 original_text?.text = translation.originalText
-                translated_text?.text = "Do not bother translating this"
+                translated_text?.text = translation.translatedText
                 location?.text = "1 One Street, One Suburb, One City, 1111,  One Country"
-                note?.text = "This is a text note to test the note."
+                note?.text = translation.note
             } else {
                 // TODO: make an error message...
                 date?.text = "1/11/1111"
