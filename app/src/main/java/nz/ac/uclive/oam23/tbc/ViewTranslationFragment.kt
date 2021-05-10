@@ -36,10 +36,10 @@ class ViewTranslationFragment : Fragment() {
     }
 
     fun tempFill() {
-        val original_text = view?.findViewById<TextView>(R.id.originalText)
+        val original_text = view?.findViewById<TextView>(R.id.originalTextEdit)
         val translated_text = view?.findViewById<TextView>(R.id.translatedText)
-        val location = view?.findViewById<TextView>(R.id.location)
-        val note = view?.findViewById<TextView>(R.id.note)
+        val location = view?.findViewById<TextView>(R.id.locationEdit)
+        val note = view?.findViewById<TextView>(R.id.noteEdit)
         val date = view?.findViewById<TextView>(R.id.date)
 
         if (viewModel.selectedIndex.value != null && viewModel.selectedIndex.value != -1) {
