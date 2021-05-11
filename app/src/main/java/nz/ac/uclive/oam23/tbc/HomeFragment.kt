@@ -79,11 +79,13 @@ class HomeFragment : Fragment() {
         enableUserLocation()
     }
 
+    /**
+     * Enables the users location to be shown on the map.
+     */
     fun enableUserLocation() {
         try {
             googleMapRef.isMyLocationEnabled = true
         } catch (e: SecurityException) {
-            requestMapPermission()
         }
     }
 
@@ -151,15 +153,6 @@ class HomeFragment : Fragment() {
 
         //Set up users location.
         enableUserLocation()
-    }
-
-    /**
-     * Requests for the users map permissions.
-     */
-    fun requestMapPermission() {
-        ActivityCompat.requestPermissions(requireActivity(),
-                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                REQUEST_FINE_LOCATION)
     }
 
 
