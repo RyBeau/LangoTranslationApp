@@ -27,4 +27,16 @@ class TranslationRepository(private val translationDao: TranslationDao) {
     suspend fun insert(translation: Translation) {
         translationDao.insert(translation)
     }
+
+    @Suppress("RedundantSuspendModifier")
+    @WorkerThread
+    suspend fun delete(translation: Translation) {
+        translationDao.delete(translation)
+    }
+
+    @Suppress("RedundantSuspendModifier")
+    @WorkerThread
+    suspend fun update(translation: Translation) {
+        translationDao.update(translation)
+    }
 }

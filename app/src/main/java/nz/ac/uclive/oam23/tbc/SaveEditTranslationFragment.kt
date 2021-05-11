@@ -61,14 +61,13 @@ class SaveEditTranslationFragment : Fragment() {
     ): View? {
         val mainActivity = activity as MainActivity
         mainActivity.setLocation(MainActivity.Location.SAVE_EDIT_TRANSLATION)
-        viewModel.tempStartingValue()
         return inflater.inflate(R.layout.fragment_save_edit_translation, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        tempFill()
+//        tempFill()
 
         val original_text = view?.findViewById<EditText>(R.id.originalTextEdit).text.toString()
         val translated_text = view?.findViewById<TextView>(R.id.translatedText).text.toString()
@@ -87,43 +86,43 @@ class SaveEditTranslationFragment : Fragment() {
 //        toolbar?.setNavigationOnClickListener (Navigation.createNavigateOnClickListener(R.id.action_saveEditTranslationFragment_to_homeFragment))
     }
 
-    fun tempFill() {
-        val original_text = view?.findViewById<EditText>(R.id.originalTextEdit)
-        val translated_text = view?.findViewById<TextView>(R.id.translatedText)
-        val location = view?.findViewById<EditText>(R.id.locationEdit)
-        val note = view?.findViewById<EditText>(R.id.noteEdit)
-        val date = view?.findViewById<TextView>(R.id.date)
-
-
-        if (viewModel.selectedIndex.value != null && viewModel.selectedIndex.value != -1) {
-            val translation = viewModel.tempTranslationsList.value?.get(viewModel.selectedIndex.value!!)
-            if (translation != null) {
-                date?.text = translation.date
-                original_text?.setText(translation.originalText)
-                translated_text?.text = translation.translatedText
-                location?.setText("1 One Street, One Suburb, One City, 1111,  One Country")
-                note?.setText(translation.note)
-            } else {
-                // TODO: make an error message...
-                date?.text = "1/11/1111"
-                original_text?.setText("これをわざわざ翻訳しないでください")
-                translated_text?.text = "Do not bother translating this"
-                location?.setText("1 One Street, One Suburb, One City, 1111,  One Country")
-                note?.setText("This is a text note to test the note.")
-            }
-        } else {
-            // TODO: make an error message...
-            date?.text = "1/11/1111"
-            original_text?.setText("これをわざわざ翻訳しないでください")
-            translated_text?.text = "Do not bother translating this"
-            location?.setText("1 One Street, One Suburb, One City, 1111,  One Country")
-            note?.setText("This is a text note to test the note.")
-        }
-
-
-        if (!SAVE_MODE) {
-            original_text?.isEnabled = false
-        }
-    }
+//    fun tempFill() {
+//        val original_text = view?.findViewById<EditText>(R.id.originalTextEdit)
+//        val translated_text = view?.findViewById<TextView>(R.id.translatedText)
+//        val location = view?.findViewById<EditText>(R.id.locationEdit)
+//        val note = view?.findViewById<EditText>(R.id.noteEdit)
+//        val date = view?.findViewById<TextView>(R.id.date)
+//
+//
+//        if (viewModel.selectedIndex.value != null && viewModel.selectedIndex.value != -1) {
+//            val translation = viewModel.tempTranslationsList.value?.get(viewModel.selectedIndex.value!!)
+//            if (translation != null) {
+//                date?.text = translation.date
+//                original_text?.setText(translation.originalText)
+//                translated_text?.text = translation.translatedText
+//                location?.setText("1 One Street, One Suburb, One City, 1111,  One Country")
+//                note?.setText(translation.note)
+//            } else {
+//                // TODO: make an error message...
+//                date?.text = "1/11/1111"
+//                original_text?.setText("これをわざわざ翻訳しないでください")
+//                translated_text?.text = "Do not bother translating this"
+//                location?.setText("1 One Street, One Suburb, One City, 1111,  One Country")
+//                note?.setText("This is a text note to test the note.")
+//            }
+//        } else {
+//            // TODO: make an error message...
+//            date?.text = "1/11/1111"
+//            original_text?.setText("これをわざわざ翻訳しないでください")
+//            translated_text?.text = "Do not bother translating this"
+//            location?.setText("1 One Street, One Suburb, One City, 1111,  One Country")
+//            note?.setText("This is a text note to test the note.")
+//        }
+//
+//
+//        if (!SAVE_MODE) {
+//            original_text?.isEnabled = false
+//        }
+//    }
 
 }

@@ -22,10 +22,19 @@
         android:id="@+id/navigation_previous"
         android:name="nz.ac.uclive.oam23.tbc.PreviousTranslationsFragment"
         android:label="@string/title_previous_translations"
-        tools:layout="@layout/fragment_previous_translations" />
+        tools:layout="@layout/fragment_previous_translations" >
+        <action
+            android:id="@+id/action_navigation_previous_to_viewTranslationFragment2"
+            app:destination="@id/viewTranslationFragment2" />
+    </fragment>
     <fragment
         android:id="@+id/navigation_saveedit"
         android:name="nz.ac.uclive.oam23.tbc.SaveEditTranslationFragment"
         android:label="fragment_save_edit_translation"
         tools:layout="@layout/fragment_save_edit_translation" />
+    <fragment
+        android:id="@+id/viewTranslationFragment2"
+        android:name="nz.ac.uclive.oam23.tbc.ViewTranslationFragment"
+        android:label="fragment_view_translation"
+        tools:layout="@layout/fragment_view_translation" />
 </navigation>
