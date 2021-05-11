@@ -6,12 +6,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.fragment.app.activityViewModels
 
 
 /**
  * Fragment for viewing saved translations
  */
 class ViewTranslationFragment : Fragment() {
+
+    private val viewModel: TranslationsViewModel by activityViewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,6 +27,8 @@ class ViewTranslationFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        val mainActivity = activity as MainActivity
+        mainActivity.setLocation(MainActivity.Location.VIEW_TRANSLATION)
         return inflater.inflate(R.layout.fragment_view_translation, container, false)
     }
 
@@ -39,10 +44,29 @@ class ViewTranslationFragment : Fragment() {
         val note = view?.findViewById<TextView>(R.id.note)
         val date = view?.findViewById<TextView>(R.id.date)
 
-        date?.text = "1/11/1111"
-        original_text?.text = "これをわざわざ翻訳しないでください"
-        translated_text?.text = "Do not bother translating this"
-        location?.text = "1 One Street, One Suburb, One City, 1111,  One Country"
-        note?.text = "This is a text note to test the note."
+        if (viewModel.selectedIndex.value != null && viewModel.selectedIndex.value != -1) {
+            val translation = viewModel.tempTranslationsList.value?.get(viewModel.selectedIndex.value!!)
+            if (translation != null) {
+                date?.text = translation.date
+                original_text?.text = translation.originalText
+                translated_text?.text = "Do not bother translating this"
+                location?.text = "1 One Street, One Suburb, One City, 1111,  One Country"
+                note?.text = "This is a text note to test the note."
+            } else {
+                // TODO: make an error message...
+                date?.text = "1/11/1111"
+                original_text?.text = "これをわざわざ翻訳しないでください"
+                translated_text?.text = "Do not bother translating this"
+                location?.text = "1 One Street, One Suburb, One City, 1111,  One Country"
+                note?.text = "This is a text note to test the note."
+            }
+        } else {
+            // TODO: make an error message...
+            date?.text = "1/11/1111"
+            original_text?.text = "これをわざわざ翻訳しないでください"
+            translated_text?.text = "Do not bother translating this"
+            location?.text = "1 One Street, One Suburb, One City, 1111,  One Country"
+            note?.text = "This is a text note to test the note."
+        }
     }
 }

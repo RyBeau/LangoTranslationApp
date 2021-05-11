@@ -16,11 +16,15 @@
     <string name="date_desc">Date ▼</string>
     <string name="date_asc">Date ▲</string>
     <string name="original_text_no_colon">Original Text</string>
-
+    <string name="save" >Save</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="go_back_confirmation">Are you sure you want to go back?</string>
+    <string name="camera">Camera</string>
+    <string name="permissions_granted">Permissions Granted</string>
+    <string name="permissions_denied">Permissions Denied</string>
     <string name="dialog_confirm">Ok</string>
     <string name="dialog_cancel">Cancel</string>
     <string name="on_photo_success">Photo successfully taken!</string>
-
-
     <string name="map_permission_dialog">Please enable location services or else you won\'t be able to save the location of your images.</string>
 </resources>
