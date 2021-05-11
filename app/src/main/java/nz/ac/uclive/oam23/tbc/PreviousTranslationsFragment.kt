@@ -17,7 +17,9 @@ import androidx.recyclerview.widget.RecyclerView
  */
 class PreviousTranslationsFragment : Fragment(), PreviousTranslationAdapter.OnPreviousTranslationListener {
 
-    private val viewModel: TranslationsViewModel by activityViewModels()
+    private val viewModel: TranslationsViewModel by activityViewModels() {
+        TranslationsViewModelFactory((activity?.application as TBCApplication).repository)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -26,13 +28,13 @@ class PreviousTranslationsFragment : Fragment(), PreviousTranslationAdapter.OnPr
         val mainActivity = activity as MainActivity
         mainActivity.setLocation(MainActivity.Location.PREVIOUS_TRANSLATIONS)
         val view =  inflater.inflate(R.layout.fragment_previous_translations, container, false)
-        val translationAdapter = PreviousTranslationAdapter(viewModel.tempTranslationsList.value!!, this)
+        val translationAdapter = PreviousTranslationAdapter(listOf(), this)
         val recyclerView = view.findViewById<RecyclerView>(R.id.previousTranslationsViewer)
         recyclerView.apply {
             adapter = translationAdapter
             layoutManager = LinearLayoutManager(activity)
         }
-        viewModel.tempTranslationsList.observe(viewLifecycleOwner, {newTranslations ->
+        viewModel.translationsList.observe(viewLifecycleOwner, { newTranslations ->
             translationAdapter.setData(newTranslations)
         })
         return view
