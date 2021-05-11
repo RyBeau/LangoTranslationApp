@@ -48,6 +48,7 @@ class HomeFragment : Fragment() {
     private var param2: String? = null
     val REQUEST_IMAGE_CAPTURE = 1
     val REQUEST_FINE_LOCATION = 2
+    val REQUEST_CAMERA_STORAGE_PERMISSIONS = 3
     lateinit var googleMapRef: GoogleMap
 
     lateinit var currentPhotoPath: String
@@ -104,18 +105,16 @@ class HomeFragment : Fragment() {
                     // Create the File where the photo should go
                     try {
                         val photoFile: File? = createImageFileName()
-                        photoFile.also { file ->
-                            if (file !== null) {
-                                val photoURI: Uri? = requireActivity().let { context ->
-                                    FileProvider.getUriForFile(
-                                            context,
-                                            "nz.ac.uclive.oam23.tbc.android.fileprovider",
-                                            file
-                                    )
-                                }
-                                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
-                                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
+                        if (photoFile !== null) {
+                            val photoURI: Uri? = requireActivity().let { context ->
+                                FileProvider.getUriForFile(
+                                        context,
+                                        "nz.ac.uclive.oam23.tbc.android.fileprovider",
+                                        photoFile
+                                )
                             }
+                            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
+                            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
                         }
                     } catch (e: IOException) {
                         // Error occurred while creating the File
@@ -143,9 +142,6 @@ class HomeFragment : Fragment() {
         } catch (e: SecurityException) {
             getMapPermissions()
         }
-//        googleMap.setOnMyLocationButtonClickListener(this)
-//        googleMap.setOnMyLocationClickListener(this)
-
     }
 
     /**
@@ -201,6 +197,15 @@ class HomeFragment : Fragment() {
     }
 
     /**
+     * Requests for the users camera permissions.
+     */
+    fun requestCameraPermission() {
+        ActivityCompat.requestPermissions(requireActivity(),
+                arrayOf(Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                REQUEST_CAMERA_STORAGE_PERMISSIONS)
+    }
+
+    /**
      * Creates the map, calls the OnMapReadyCallback() function.
      */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -231,7 +236,7 @@ class HomeFragment : Fragment() {
                 createImageFileName()
                 takeImage()
             } catch (e: SecurityException) {
-                Toast.makeText(context, "Error: Please ensure you have appropriate camera permissions in your phone settings", Toast.LENGTH_LONG).show()
+                requestCameraPermission()
             }
         }
         return view
