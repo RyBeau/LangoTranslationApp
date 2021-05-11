@@ -1,7 +1,9 @@
 package nz.ac.uclive.oam23.tbc
 
+import android.Manifest
 import android.app.Activity
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
@@ -10,9 +12,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
@@ -26,10 +30,64 @@ import kotlin.jvm.Throws
 
 class HomeFragment : Fragment() {
 
-    val REQUEST_IMAGE_CAPTURE = 1
+    val PERMISSIONS_REQUEST_CODE = 10
+    val PERMISSIONS_REQUIRED = arrayOf(Manifest.permission.CAMERA,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.READ_EXTERNAL_STORAGE)
 
+    //Request codes for individual requests.
+    val REQUEST_IMAGE_CAPTURE = 1
+    val REQUEST_FINE_LOCATION = 2
+    val REQUEST_CAMERA_STORAGE_PERMISSIONS = 3
+    lateinit var googleMapRef: GoogleMap
 
     lateinit var currentPhotoPath: String
+
+    /**
+     * Handles feedback to the user after permissions are accepted.
+     */
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        when (requestCode) {
+            REQUEST_FINE_LOCATION -> {
+                if (resultCode == Activity.RESULT_OK) {
+                    try {
+                        googleMapRef.isMyLocationEnabled = true
+                    } catch (e: SecurityException) {
+                    }
+                }
+            }
+            REQUEST_IMAGE_CAPTURE -> {
+                if (resultCode == Activity.RESULT_OK) {
+                    Toast.makeText(requireActivity(), R.string.on_photo_success, Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+
+    /**
+     * Callback function for permission request
+     */
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == PERMISSIONS_REQUEST_CODE) {
+            if (PackageManager.PERMISSION_GRANTED == grantResults.sum()) {
+                Toast.makeText(requireActivity(), getString(R.string.permissions_granted), Toast.LENGTH_LONG).show()
+            } else {
+                Toast.makeText(requireActivity(), getString(R.string.permissions_denied), Toast.LENGTH_LONG).show()
+            }
+        }
+        enableUserLocation()
+    }
+
+    /**
+     * Enables the users location to be shown on the map.
+     */
+    fun enableUserLocation() {
+        try {
+            googleMapRef.isMyLocationEnabled = true
+        } catch (e: SecurityException) {
+        }
+    }
 
     /**
      * Creates a unique filename using the current date.
@@ -51,22 +109,8 @@ class HomeFragment : Fragment() {
     }
 
     /**
-     * If a photo is successfully taken and saved, show a toast to the user.
-     */
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode == REQUEST_IMAGE_CAPTURE) {
-            // It came from our call
-            if (resultCode == Activity.RESULT_OK) {
-                // The result was successful
-                Toast.makeText(activity?.applicationContext, "Photo successfully taken!", Toast.LENGTH_LONG).show()
-            }
-        }
-    }
-
-
-    /**
      * Requests to take a photo using intents.
-     * If a photo is sucessfully taken, saves it into
+     * If a photo is successfully taken, saves it into EXTERNAL storage.
      */
     private fun takeImage() {
         Intent(MediaStore.ACTION_IMAGE_CAPTURE).also { takePictureIntent ->
@@ -76,22 +120,20 @@ class HomeFragment : Fragment() {
                     // Create the File where the photo should go
                     try {
                         val photoFile: File? = createImageFileName()
-                        photoFile.also { file ->
-                            if (file !== null) {
-                                val photoURI: Uri? = activity?.applicationContext?.let { context ->
-                                    FileProvider.getUriForFile(
-                                            context,
-                                            "nz.ac.uclive.oam23.tbc.android.fileprovider",
-                                            file
-                                    )
-                                }
-                                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
-                                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
+                        if (photoFile !== null) {
+                            val photoURI: Uri? = requireActivity().let { context ->
+                                FileProvider.getUriForFile(
+                                        context,
+                                        "nz.ac.uclive.oam23.tbc.android.fileprovider",
+                                        photoFile
+                                )
                             }
+                            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
+                            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
                         }
                     } catch (e: IOException) {
                         // Error occurred while creating the File
-                        Toast.makeText(activity?.applicationContext, "Error occurred while creating the file.", Toast.LENGTH_LONG).show()
+                        Toast.makeText(requireActivity(), "Error occurred while creating the file.", Toast.LENGTH_LONG).show()
                     }
                 }
             }
@@ -104,10 +146,23 @@ class HomeFragment : Fragment() {
      * Add markers/move camera/set zoom here as required.
      */
     private val callback = OnMapReadyCallback { googleMap ->
-
+        googleMapRef = googleMap
         val sydney = LatLng(-34.0, 151.0)
         googleMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
         googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
+
+        //Set up users location.
+        enableUserLocation()
+    }
+
+
+    /**
+     * Requests for the users camera permissions.
+     */
+    fun requestCameraPermission() {
+        ActivityCompat.requestPermissions(requireActivity(),
+                arrayOf(Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                REQUEST_CAMERA_STORAGE_PERMISSIONS)
     }
 
     /**
@@ -134,7 +189,7 @@ class HomeFragment : Fragment() {
                 createImageFileName()
                 takeImage()
             } catch (e: SecurityException) {
-                Toast.makeText(context, "Error: Please ensure you have appropriate camera permissions in your phone settings", Toast.LENGTH_LONG).show()
+                requestCameraPermission()
             }
         }
         return view
@@ -142,6 +197,6 @@ class HomeFragment : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        (activity as MainActivity).checkPermissions()
+        requestPermissions(PERMISSIONS_REQUIRED, PERMISSIONS_REQUEST_CODE)
     }
 }
