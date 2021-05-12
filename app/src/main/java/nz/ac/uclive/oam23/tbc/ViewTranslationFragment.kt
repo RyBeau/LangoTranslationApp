@@ -5,8 +5,10 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.TextView
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.Navigation
 
 
 /**
@@ -31,7 +33,14 @@ class ViewTranslationFragment : Fragment() {
     ): View? {
         val mainActivity = activity as MainActivity
         mainActivity.setLocation(MainActivity.Location.VIEW_TRANSLATION)
-        return inflater.inflate(R.layout.fragment_view_translation, container, false)
+
+        val view = inflater.inflate(R.layout.fragment_view_translation, container, false)
+
+        view.findViewById<Button>(R.id.cancelEditTranslationButton).setOnClickListener {
+            Navigation.findNavController(view!!).navigate(R.id.action_navigation_viewTranslation_to_navigation_saveEdit)
+        }
+
+        return view
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -52,7 +61,7 @@ class ViewTranslationFragment : Fragment() {
                 date?.text = translation.date.toString()
                 original_text?.text = translation.originalText
                 translated_text?.text = translation.translatedText
-                location?.text = "1 One Street, One Suburb, One City, 1111,  One Country"
+                location?.text = translation.location.toString()
                 note?.text = translation.note
             } else {
                 // TODO: make an error message...

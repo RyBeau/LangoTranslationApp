@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@id/navigation_saveedit">
+    app:startDestination="@id/navigation_home">
 
     <!--Used for navigating using the bottom navigation bar-->
     <fragment
@@ -24,17 +24,21 @@
         android:label="@string/title_previous_translations"
         tools:layout="@layout/fragment_previous_translations" >
         <action
-            android:id="@+id/action_navigation_previous_to_viewTranslationFragment2"
-            app:destination="@id/viewTranslationFragment2" />
+            android:id="@+id/action_navigation_previous_to_navigation_viewTranslation"
+            app:destination="@id/navigation_viewTranslation" />
     </fragment>
     <fragment
-        android:id="@+id/navigation_saveedit"
+        android:id="@+id/navigation_saveEdit"
         android:name="nz.ac.uclive.oam23.tbc.SaveEditTranslationFragment"
         android:label="fragment_save_edit_translation"
         tools:layout="@layout/fragment_save_edit_translation" />
     <fragment
-        android:id="@+id/viewTranslationFragment2"
+        android:id="@+id/navigation_viewTranslation"
         android:name="nz.ac.uclive.oam23.tbc.ViewTranslationFragment"
         android:label="fragment_view_translation"
-        tools:layout="@layout/fragment_view_translation" />
+        tools:layout="@layout/fragment_view_translation" >
+        <action
+            android:id="@+id/action_navigation_viewTranslation_to_navigation_saveEdit"
+            app:destination="@id/navigation_saveEdit" />
+    </fragment>
 </navigation>

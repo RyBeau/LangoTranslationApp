@@ -1,6 +1,7 @@
 package nz.ac.uclive.oam23.tbc
 
 import android.os.Bundle
+import android.util.Log.d
 import android.view.*
 import android.widget.Button
 import android.widget.EditText
@@ -13,7 +14,11 @@ private const val SAVE_MODE = true
 
 class SaveEditTranslationFragment : Fragment() {
 
-    private val viewModel: TranslationsViewModel by activityViewModels()
+    private val viewModel: TranslationsViewModel by activityViewModels() {
+        TranslationsViewModelFactory((activity?.application as TBCApplication).repository)
+    }
+
+
 
 //    var toolbar: Toolbar? = null
 //    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -67,15 +72,17 @@ class SaveEditTranslationFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-//        tempFill()
+        autoFill()
 
-        val original_text = view?.findViewById<EditText>(R.id.originalTextEdit).text.toString()
-        val translated_text = view?.findViewById<TextView>(R.id.translatedText).text.toString()
-        val location = view?.findViewById<EditText>(R.id.locationEdit).text.toString()
-        val note = view?.findViewById<EditText>(R.id.noteEdit).text.toString()
-        val date = view?.findViewById<TextView>(R.id.date).text.toString()
 
-        view.findViewById<Button>(R.id.saveEditsButton).setOnClickListener {
+
+        view.findViewById<Button>(R.id.saveEditTranslationButton).setOnClickListener {
+            val original_text = view?.findViewById<EditText>(R.id.originalTextEdit).text.toString()
+            val translated_text = view?.findViewById<TextView>(R.id.translatedText).text.toString()
+            val location = view?.findViewById<EditText>(R.id.locationEdit).text.toString()
+            val note = view?.findViewById<EditText>(R.id.noteEdit).text.toString()
+            val date = view?.findViewById<TextView>(R.id.date).text.toString()
+
             val tempTranslation = PreviousTranslation(date, original_text, translated_text, note)
             viewModel.editTranslation(tempTranslation)
         }
@@ -86,43 +93,45 @@ class SaveEditTranslationFragment : Fragment() {
 //        toolbar?.setNavigationOnClickListener (Navigation.createNavigateOnClickListener(R.id.action_saveEditTranslationFragment_to_homeFragment))
     }
 
-//    fun tempFill() {
-//        val original_text = view?.findViewById<EditText>(R.id.originalTextEdit)
-//        val translated_text = view?.findViewById<TextView>(R.id.translatedText)
-//        val location = view?.findViewById<EditText>(R.id.locationEdit)
-//        val note = view?.findViewById<EditText>(R.id.noteEdit)
-//        val date = view?.findViewById<TextView>(R.id.date)
-//
-//
-//        if (viewModel.selectedIndex.value != null && viewModel.selectedIndex.value != -1) {
-//            val translation = viewModel.tempTranslationsList.value?.get(viewModel.selectedIndex.value!!)
-//            if (translation != null) {
-//                date?.text = translation.date
-//                original_text?.setText(translation.originalText)
-//                translated_text?.text = translation.translatedText
-//                location?.setText("1 One Street, One Suburb, One City, 1111,  One Country")
-//                note?.setText(translation.note)
-//            } else {
-//                // TODO: make an error message...
-//                date?.text = "1/11/1111"
-//                original_text?.setText("これをわざわざ翻訳しないでください")
-//                translated_text?.text = "Do not bother translating this"
-//                location?.setText("1 One Street, One Suburb, One City, 1111,  One Country")
-//                note?.setText("This is a text note to test the note.")
-//            }
-//        } else {
-//            // TODO: make an error message...
-//            date?.text = "1/11/1111"
-//            original_text?.setText("これをわざわざ翻訳しないでください")
-//            translated_text?.text = "Do not bother translating this"
-//            location?.setText("1 One Street, One Suburb, One City, 1111,  One Country")
-//            note?.setText("This is a text note to test the note.")
-//        }
-//
-//
-//        if (!SAVE_MODE) {
-//            original_text?.isEnabled = false
-//        }
-//    }
+    fun autoFill() {
+        val original_text = view?.findViewById<EditText>(R.id.originalTextEdit)
+        val translated_text = view?.findViewById<TextView>(R.id.translatedText)
+        val location = view?.findViewById<EditText>(R.id.locationEdit)
+        val note = view?.findViewById<EditText>(R.id.noteEdit)
+        val date = view?.findViewById<TextView>(R.id.date)
+
+        d("Test", "Auto-filling now")
+
+
+        if (viewModel.selectedIndex.value != null && viewModel.selectedIndex.value != -1) {
+            val translation = viewModel.translationsList.value?.get(viewModel.selectedIndex.value!!)
+            if (translation != null) {
+                date?.text = translation.date.toString()
+                original_text?.setText(translation.originalText)
+                translated_text?.text = translation.translatedText
+                location?.setText(translation.location.toString())
+                note?.setText(translation.note)
+            } else {
+                // TODO: make an error message...
+                date?.text = "1/11/1111"
+                original_text?.setText("これをわざわざ翻訳しないでください")
+                translated_text?.text = "Do not bother translating this"
+                location?.setText("1 One Street, One Suburb, One City, 1111,  One Country")
+                note?.setText("This is a text note to test the note.")
+            }
+        } else {
+            // TODO: make an error message...
+            date?.text = "1/11/1111"
+            original_text?.setText("これをわざわざ翻訳しないでください")
+            translated_text?.text = "Do not bother translating this"
+            location?.setText("1 One Street, One Suburb, One City, 1111,  One Country")
+            note?.setText("This is a text note to test the note.")
+        }
+
+
+        if (!SAVE_MODE) {
+            original_text?.isEnabled = false
+        }
+    }
 
 }

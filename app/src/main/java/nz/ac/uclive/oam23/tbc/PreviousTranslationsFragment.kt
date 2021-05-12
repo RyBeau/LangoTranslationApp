@@ -9,10 +9,8 @@ import android.widget.Button
 import android.widget.Toast
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
-import androidx.navigation.Navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.room.ColumnInfo
 import com.google.android.gms.maps.model.LatLng
 import java.time.LocalDate
 
@@ -53,6 +51,6 @@ class PreviousTranslationsFragment : Fragment(), PreviousTranslationAdapter.OnPr
     override fun onTranslationClick(position: Int) {
         Toast.makeText(context, "Test", Toast.LENGTH_SHORT).show()
         viewModel.setSelectedIndex(position)
-        Navigation.findNavController(requireView()).navigate(R.id.action_navigation_previous_to_viewTranslationFragment2)
+        Navigation.findNavController(requireView()).navigate(R.id.action_navigation_previous_to_navigation_viewTranslation)
     }
 }
