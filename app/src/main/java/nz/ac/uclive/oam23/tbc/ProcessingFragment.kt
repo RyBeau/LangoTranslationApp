@@ -1,6 +1,7 @@
 package nz.ac.uclive.oam23.tbc
 
 import android.os.Bundle
+import android.os.Environment
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -13,12 +14,14 @@ import androidx.fragment.app.Fragment
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.Text
 import com.google.mlkit.vision.text.TextRecognition
+import java.io.File
 import java.io.IOException
 
 
 class ProcessingFragment : Fragment() {
     val recogniser = TextRecognition.getClient()
     lateinit var currentAction: TextView
+    lateinit var path: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,12 +54,22 @@ class ProcessingFragment : Fragment() {
 
     }
 
+    override fun onStop() {
+        Log.d("Text", path)
+        super.onStop()
+        val file = File(path)
+        file.delete()
+    }
+
     private fun detectText(imagePath: String) {
+        path = imagePath
         val image: InputImage
         try {
             image = InputImage.fromFilePath(requireContext(),  ("file://$imagePath").toUri())
             val result = recogniser.process(image)
-                .addOnSuccessListener { visionText -> processVisionText(visionText)
+                .addOnSuccessListener { visionText -> run {
+                    processVisionText(visionText)
+                }
                 }
                 .addOnFailureListener { e ->
                     run {
@@ -94,4 +107,5 @@ class ProcessingFragment : Fragment() {
         currentAction.text = getString(R.string.translating_text)
         Log.d("Text", text)
     }
+
 }
