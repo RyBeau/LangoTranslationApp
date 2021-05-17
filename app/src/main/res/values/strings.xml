@@ -29,4 +29,8 @@
     <string name="map_permission_dialog">Please enable location services or else you won\'t be able to save the location of your images.</string>
     <string name="recognising_text">Recognising Text</string>
     <string name="translating_text">Translating Text</string>
+    <string name="text_recognition_fail">Text Recognition Failed</string>
+    <string name="text_translation_fail">Text Translation Failed</string>
+    <string name="no_text_found">No Text Found</string>
+    <string name="file_error">Error occurred while creating the file.</string>
 </resources>

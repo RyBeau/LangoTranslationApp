@@ -133,7 +133,7 @@ class HomeFragment : Fragment() {
                         }
                     } catch (e: IOException) {
                         // Error occurred while creating the File
-                        Toast.makeText(requireActivity(), "Error occurred while creating the file.", Toast.LENGTH_LONG).show()
+                        Toast.makeText(requireActivity(), getString(R.string.file_error), Toast.LENGTH_LONG).show()
                     }
                 }
             }
