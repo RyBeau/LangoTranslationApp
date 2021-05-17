@@ -14,7 +14,9 @@ import androidx.fragment.app.activityViewModels
  */
 class ViewTranslationFragment : Fragment() {
 
-    private val viewModel: TranslationsViewModel by activityViewModels()
+    private val viewModel: TranslationsViewModel by activityViewModels() {
+        TranslationsViewModelFactory((activity?.application as TBCApplication).repository)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,9 +47,9 @@ class ViewTranslationFragment : Fragment() {
         val date = view?.findViewById<TextView>(R.id.date)
 
         if (viewModel.selectedIndex.value != null && viewModel.selectedIndex.value != -1) {
-            val translation = viewModel.tempTranslationsList.value?.get(viewModel.selectedIndex.value!!)
+            val translation = viewModel.translationsList.value?.get(viewModel.selectedIndex.value!!)
             if (translation != null) {
-                date?.text = translation.date
+                date?.text = translation.date.toString()
                 original_text?.text = translation.originalText
                 translated_text?.text = "Do not bother translating this"
                 location?.text = "1 One Street, One Suburb, One City, 1111,  One Country"

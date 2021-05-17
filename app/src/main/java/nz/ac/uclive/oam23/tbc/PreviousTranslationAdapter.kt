@@ -14,7 +14,7 @@ class PreviousTranslation(val date: String, val originalText: String){}
 /**
  * Adapter for the StoredTranslationFragment
  */
-class PreviousTranslationAdapter(private var translations: List<PreviousTranslation>, private val onPreviousTranslationListener: OnPreviousTranslationListener)
+class PreviousTranslationAdapter(private var translations: List<Translation>, private val onPreviousTranslationListener: OnPreviousTranslationListener)
     : RecyclerView.Adapter<PreviousTranslationAdapter.PreviousTranslationViewHolder>() {
 
     class PreviousTranslationViewHolder(itemView: View, private val onPreviousTranslationListener: OnPreviousTranslationListener)
@@ -39,13 +39,13 @@ class PreviousTranslationAdapter(private var translations: List<PreviousTranslat
     }
 
     override fun onBindViewHolder(viewHolder: PreviousTranslationViewHolder, position: Int) {
-        viewHolder.date.text = translations[position].date
+        viewHolder.date.text = translations[position].date.toString()
         viewHolder.originalText.text = translations[position].originalText
     }
 
     override fun getItemCount() = translations.size
 
-    fun setData(newTranslations: List<PreviousTranslation>) {
+    fun setData(newTranslations: List<Translation>) {
         translations = newTranslations
         notifyDataSetChanged()
     }
