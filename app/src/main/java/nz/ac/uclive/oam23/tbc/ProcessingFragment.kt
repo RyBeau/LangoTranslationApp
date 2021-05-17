@@ -1,14 +1,17 @@
 package nz.ac.uclive.oam23.tbc
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import com.google.mlkit.vision.common.InputImage
+import com.google.mlkit.vision.text.Text
 import com.google.mlkit.vision.text.TextRecognition
 import java.io.IOException
 
@@ -20,6 +23,7 @@ class ProcessingFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         (activity as AppCompatActivity?)!!.supportActionBar!!.hide()
+        savedInstanceState?.get("photoPath")?.let { Log.d("Test", it.toString()) }
     }
 
     override fun onCreateView(
@@ -36,24 +40,58 @@ class ProcessingFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         currentAction = view.findViewById(R.id.currentAction)
         currentAction.text = getString(R.string.recognising_text)
+        arguments?.getString("photoPath")?.let { detectText(it) } ?: run {
+            Toast.makeText(
+                requireActivity(),
+                getString(R.string.no_image),
+                Toast.LENGTH_LONG
+            ).show()
+            requireActivity().onBackPressed()
+        }
+
     }
 
     private fun detectText(imagePath: String) {
         val image: InputImage
         try {
-            image = InputImage.fromFilePath(requireContext(), imagePath.toUri())
+            image = InputImage.fromFilePath(requireContext(),  ("file://$imagePath").toUri())
             val result = recogniser.process(image)
-                .addOnSuccessListener { visionText -> {
-                    //TODO Set text box value
+                .addOnSuccessListener { visionText -> processVisionText(visionText)
                 }
-                }
-                .addOnFailureListener { e -> {
-                    //TODO Handle failure
-                    e.printStackTrace()
-                }
+                .addOnFailureListener { e ->
+                    run {
+                        Toast.makeText(
+                            requireActivity(),
+                            getString(R.string.text_recognition_fail),
+                            Toast.LENGTH_LONG
+                        ).show()
+                        e.printStackTrace()
+                        requireActivity().onBackPressed()
+                    }
                 }
         } catch (e: IOException) {
             e.printStackTrace()
         }
+    }
+
+    private fun processVisionText(text: Text){
+        val blocks = text.textBlocks
+        Log.d("Text", blocks.toString())
+        if(blocks.size < 1){
+            Toast.makeText(requireActivity(), getString(R.string.no_text_found), Toast.LENGTH_LONG).show()
+            requireActivity().onBackPressed()
+        } else {
+            var allText = ""
+            for (block in blocks){
+                Log.d("Text", block.text)
+                allText = "${block.text} "
+            }
+            translateText(allText)
+        }
+    }
+
+    private fun translateText (text: String){
+        currentAction.text = getString(R.string.translating_text)
+        Log.d("Text", text)
     }
 }

@@ -14,7 +14,9 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.FileProvider
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
+import androidx.navigation.findNavController
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -26,6 +28,7 @@ import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.concurrent.schedule
 import kotlin.jvm.Throws
 
 class HomeFragment : Fragment() {
@@ -59,6 +62,8 @@ class HomeFragment : Fragment() {
             REQUEST_IMAGE_CAPTURE -> {
                 if (resultCode == Activity.RESULT_OK) {
                     Toast.makeText(requireActivity(), R.string.on_photo_success, Toast.LENGTH_LONG).show()
+                    val bundle = bundleOf("photoPath" to currentPhotoPath)
+                        view?.findNavController()?.navigate(R.id.action_navigation_home_to_processingFragment, bundle)
                 }
             }
         }
