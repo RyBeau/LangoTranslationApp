@@ -54,7 +54,6 @@ class ProcessingFragment : Fragment() {
     }
 
     override fun onStop() {
-        Log.d("Text", path)
         super.onStop()
         val file = File(path)
         if (file.exists()){
