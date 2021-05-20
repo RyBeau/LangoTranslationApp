@@ -5,10 +5,14 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.Toast
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.gms.maps.model.LatLng
+import java.time.LocalDate
 
 /**
  * Fragment for viewing previous translations
@@ -35,11 +39,18 @@ class PreviousTranslationsFragment : Fragment(), PreviousTranslationAdapter.OnPr
         viewModel.translationsList.observe(viewLifecycleOwner, { newTranslations ->
             translationAdapter.setData(newTranslations)
         })
+
+        view.findViewById<Button>(R.id.addFillerTranslationButton).setOnClickListener {
+            val translation = Translation("temp original text", "temp translated text", LocalDate.now(), LatLng(0.0, 0.0), "temp note")
+            viewModel.addTranslation(translation)
+        }
+
         return view
     }
 
     override fun onTranslationClick(position: Int) {
         Toast.makeText(context, "Test", Toast.LENGTH_SHORT).show()
         viewModel.setSelectedIndex(position)
+        Navigation.findNavController(requireView()).navigate(R.id.action_navigation_previous_to_navigation_viewTranslation)
     }
 }

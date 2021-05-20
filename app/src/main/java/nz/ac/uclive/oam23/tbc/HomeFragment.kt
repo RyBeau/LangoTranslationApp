@@ -16,6 +16,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.FileProvider
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.findNavController
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -32,6 +33,10 @@ import kotlin.concurrent.schedule
 import kotlin.jvm.Throws
 
 class HomeFragment : Fragment() {
+
+    private val viewModel: TranslationsViewModel by activityViewModels() {
+        TranslationsViewModelFactory((activity?.application as TBCApplication).repository)
+    }
 
     val PERMISSIONS_REQUEST_CODE = 10
     val PERMISSIONS_REQUIRED = arrayOf(Manifest.permission.CAMERA,

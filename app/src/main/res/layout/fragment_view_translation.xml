@@ -22,7 +22,7 @@
             android:paddingEnd="20dp">
 
             <LinearLayout
-                android:id="@+id/dateLayout"
+                android:id="@+id/headerLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:minHeight="30dp"
@@ -55,7 +55,7 @@
                 android:textSize="18sp" />
 
             <TextView
-                android:id="@+id/originalText"
+                android:id="@+id/originalTextEdit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/border"
@@ -91,7 +91,7 @@
                 android:textSize="18sp" />
 
             <TextView
-                android:id="@+id/location"
+                android:id="@+id/locationEdit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:minHeight="75dp"
@@ -107,7 +107,7 @@
                 android:textSize="18sp" />
 
             <TextView
-                android:id="@+id/note"
+                android:id="@+id/noteEdit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:minHeight="75dp"
@@ -125,7 +125,7 @@
         app:layout_constraintStart_toStartOf="parent">
 
         <Button
-            android:id="@+id/shareButton"
+            android:id="@+id/shareTranslationButton"
             style="@style/Widget.AppCompat.Button.Colored"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -134,7 +134,7 @@
             android:text="@string/share" />
 
         <Button
-            android:id="@+id/editButton"
+            android:id="@+id/editTranslationButton"
             style="@style/Widget.AppCompat.Button.Colored"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

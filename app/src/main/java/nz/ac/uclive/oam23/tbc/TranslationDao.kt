@@ -34,4 +34,16 @@ class TranslationRepository(private val translationDao: TranslationDao) {
     fun getTranslation(key: Long): Flow<Translation>{
         return translationDao.getTranslation(key)
     }
+
+    @Suppress("RedundantSuspendModifier")
+    @WorkerThread
+    suspend fun delete(translation: Translation) {
+        translationDao.delete(translation)
+    }
+
+    @Suppress("RedundantSuspendModifier")
+    @WorkerThread
+    suspend fun update(translation: Translation) {
+        translationDao.update(translation)
+    }
 }

@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 /**
  * Temporary Class definition
  */
-class PreviousTranslation(val date: String, val originalText: String){}
+class PreviousTranslation(val date: String, var originalText: String, var translatedText: String = "", var note: String = ""){}
 
 /**
  * Adapter for the StoredTranslationFragment

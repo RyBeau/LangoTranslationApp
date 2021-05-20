@@ -50,6 +50,14 @@ class ViewTranslationFragment : Fragment() {
             fillTextViews()
         })
         return inflater.inflate(R.layout.fragment_view_translation, container, false)
+
+        val view = inflater.inflate(R.layout.fragment_view_translation, container, false)
+
+        view.findViewById<Button>(R.id.editTranslationButton).setOnClickListener {
+            Navigation.findNavController(view!!).navigate(R.id.action_navigation_viewTranslation_to_navigation_saveEdit)
+        }
+
+        return view
     }
 
     private fun fillTextViews() {
