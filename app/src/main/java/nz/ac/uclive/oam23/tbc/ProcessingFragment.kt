@@ -96,7 +96,8 @@ class ProcessingFragment : Fragment() {
         } else {
             val stringBuilder = StringBuilder()
             for (block in blocks){
-                stringBuilder.append("${block.text} ")
+                val string = block.text.replace("\n", " ")
+                stringBuilder.append(string)
             }
             translateText(stringBuilder.toString())
         }
