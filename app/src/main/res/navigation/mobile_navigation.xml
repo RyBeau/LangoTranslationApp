@@ -31,5 +31,14 @@
         android:id="@+id/processingFragment"
         android:name="nz.ac.uclive.oam23.tbc.ProcessingFragment"
         android:label="fragment_processing"
-        tools:layout="@layout/fragment_processing" />
+        tools:layout="@layout/fragment_processing" >
+        <action
+            android:id="@+id/action_processingFragment_to_saveEditTranslationFragment2"
+            app:destination="@id/saveEditTranslationFragment2" />
+    </fragment>
+    <fragment
+        android:id="@+id/saveEditTranslationFragment2"
+        android:name="nz.ac.uclive.oam23.tbc.SaveEditTranslationFragment"
+        android:label="fragment_save_edit_translation"
+        tools:layout="@layout/fragment_save_edit_translation" />
 </navigation>
