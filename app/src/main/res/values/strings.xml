@@ -34,4 +34,15 @@
     <string name="no_text_found">No Text Found</string>
     <string name="file_error">Error occurred while creating the file.</string>
     <string name="no_image">No Image Provided</string>
+    <!-- Preferences -->
+    <string name="feedback_header">Feedback</string>
+    <string name="feedback_description">Report technical issues or suggest new features</string>
+    <string name="feedback_title">Report technical issues or suggest new features</string>
+
+    <string name="notifications_header">Notifications</string>
+    <string name="notifications_title">Enable Range Notifications</string>
+
+    <string name="theme_header">Themes</string>
+    <string name="theme_title">Select a theme</string>
+
 </resources>

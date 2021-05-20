@@ -1,0 +1,35 @@
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory
+        app:key="notifications_category"
+        app:title="@string/notifications_header">
+
+        <SwitchPreferenceCompat
+            app:key="notifications"
+            app:title="@string/notifications_title"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:key="theme_category"
+        app:title="@string/theme_header">
+
+        <ListPreference
+            app:key="themes"
+            app:entries="@array/theme_values"
+            app:entryValues="@array/theme_values"
+            app:title="@string/theme_title"/>
+
+    </PreferenceCategory>
+
+
+    <PreferenceCategory app:title="@string/feedback_header">
+        <Preference
+            app:key="feedback"
+            app:summary="@string/feedback_description"
+            app:title="@string/feedback_title" />
+
+    </PreferenceCategory>
+
+
+</PreferenceScreen>
