@@ -11,10 +11,6 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.net.toUri
-import com.google.mlkit.vision.common.InputImage
-import com.google.mlkit.vision.text.TextRecognition
-import java.io.IOException
 import androidx.fragment.app.activityViewModels
 
 private const val SAVE_MODE = true
@@ -84,11 +80,11 @@ class SaveEditTranslationFragment : Fragment() {
 
 
         view.findViewById<Button>(R.id.saveEditTranslationButton).setOnClickListener {
-            val original_text = view?.findViewById<EditText>(R.id.originalTextEdit).text.toString()
-            val translated_text = view?.findViewById<TextView>(R.id.translatedText).text.toString()
-            val location = view?.findViewById<EditText>(R.id.locationEdit).text.toString()
-            val note = view?.findViewById<EditText>(R.id.noteEdit).text.toString()
-            val date = view?.findViewById<TextView>(R.id.date).text.toString()
+            val original_text = view.findViewById<EditText>(R.id.originalTextEdit).text.toString()
+            val translated_text = view.findViewById<TextView>(R.id.translatedText).text.toString()
+            val location = view.findViewById<EditText>(R.id.locationEdit).text.toString()
+            val note = view.findViewById<EditText>(R.id.noteEdit).text.toString()
+            val date = view.findViewById<TextView>(R.id.date).text.toString()
 
             val tempTranslation = PreviousTranslation(date, original_text, translated_text, note)
             viewModel.editTranslation(tempTranslation)
