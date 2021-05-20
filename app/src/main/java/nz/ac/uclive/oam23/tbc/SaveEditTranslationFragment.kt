@@ -13,6 +13,8 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.widget.doAfterTextChanged
+import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.activityViewModels
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLng
@@ -154,6 +156,9 @@ class SaveEditTranslationFragment : Fragment() {
         }
         date.text = LocalDate.now().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT))
         originalText.setText(originalTextString)
+        originalText.doAfterTextChanged {
+            //TODO Retranslated and update
+        }
         translatedText.text = translatedTextString
 
     }
