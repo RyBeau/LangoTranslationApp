@@ -179,6 +179,7 @@ class SaveEditTranslationFragment : Fragment() {
             location.setText(existingTranslation!!.locationString)
             date.text = existingTranslation!!.date.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT))
             note.setText(existingTranslation!!.note)
+            originalText.isEnabled = false
         } else {
             errorToast()
             requireActivity().onBackPressed()
