@@ -17,6 +17,8 @@ import androidx.fragment.app.activityViewModels
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLng
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 import java.util.*
 
 class SaveEditTranslationFragment : Fragment() {
@@ -154,6 +156,7 @@ class SaveEditTranslationFragment : Fragment() {
                     "${addressList[0].postalCode}, ${addressList[0].postalCode}"
             location.setText(locationString)
         }
+        date.text = LocalDate.now().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT))
         originalText.setText(originalTextString)
         translatedText.text = translatedTextString
 
