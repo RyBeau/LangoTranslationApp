@@ -34,6 +34,7 @@ class SaveEditTranslationFragment : Fragment() {
 
     private lateinit var fragmentMode: Mode
     private lateinit var latLng: LatLng
+    private var existingTranslation: Translation? = null
 
 
 
@@ -87,6 +88,10 @@ class SaveEditTranslationFragment : Fragment() {
         if (requireArguments().getString("translationKey") != null){
             key = requireArguments().getLong("translationKey")
             fragmentMode = Mode.EDIT_MODE
+            viewModel.getTranslation(key).observe(viewLifecycleOwner, { dbTranslation ->
+                existingTranslation = dbTranslation
+                fillFromExisting()
+            })
         } else if (requireArguments().getString("untranslatedText") != null &&
                 requireArguments().getString("translatedText") != null){
             fragmentMode = Mode.NEW_MODE
@@ -94,11 +99,7 @@ class SaveEditTranslationFragment : Fragment() {
                 requireArguments().getString("translatedText")?.let {
                     it1 -> fillNew(it, it1) } }
         } else {
-            Toast.makeText(
-                    requireActivity(),
-                    getString(R.string.error),
-                    Toast.LENGTH_LONG
-            ).show()
+            errorToast()
             requireActivity().onBackPressed()
         }
 
@@ -108,27 +109,22 @@ class SaveEditTranslationFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        autoFill()
-
-
+        val originalText = view.findViewById<EditText>(R.id.originalTextEdit).text.toString()
+        val translatedText = view.findViewById<TextView>(R.id.translatedText).text.toString()
+        val locationString = view.findViewById<EditText>(R.id.locationEdit).text.toString()
+        val note = view.findViewById<EditText>(R.id.noteEdit).text.toString()
     if (fragmentMode == Mode.NEW_MODE){
         view.findViewById<Button>(R.id.saveEditTranslationButton).setOnClickListener {
-            val originalText = view.findViewById<EditText>(R.id.originalTextEdit).text.toString()
-            val translatedText = view.findViewById<TextView>(R.id.translatedText).text.toString()
-            val locationString = view.findViewById<EditText>(R.id.locationEdit).text.toString()
-            val note = view.findViewById<EditText>(R.id.noteEdit).text.toString()
+
 
             val translation = Translation(originalText, translatedText, LocalDate.now(), locationString, latLng ,note)
             viewModel.addTranslation(translation)
         }
     } else {
         view.findViewById<Button>(R.id.saveEditTranslationButton).setOnClickListener {
-            val originalText = view.findViewById<EditText>(R.id.originalTextEdit).text.toString()
-            val translatedText = view.findViewById<TextView>(R.id.translatedText).text.toString()
-            val location = view.findViewById<EditText>(R.id.locationEdit).text.toString()
-            val note = view.findViewById<EditText>(R.id.noteEdit).text.toString()
-            val date = view.findViewById<TextView>(R.id.date).text.toString()
-//            viewModel.editTranslation(tempTranslation)
+            existingTranslation?.let{
+                viewModel.editTranslation(it)
+            }
         }
     }
 
@@ -162,39 +158,30 @@ class SaveEditTranslationFragment : Fragment() {
 
     }
 
-    fun autoFill() {
-        val original_text = view?.findViewById<EditText>(R.id.originalTextEdit)
-        val translated_text = view?.findViewById<TextView>(R.id.translatedText)
-        val location = view?.findViewById<EditText>(R.id.locationEdit)
-        val note = view?.findViewById<EditText>(R.id.noteEdit)
-        val date = view?.findViewById<TextView>(R.id.date)
+    private fun errorToast(){
+        Toast.makeText(
+                requireActivity(),
+                getString(R.string.error),
+                Toast.LENGTH_LONG
+        ).show()
+    }
 
-        d("Test", "Auto-filling now")
+    private fun fillFromExisting() {
+        val originalText = requireView().findViewById<EditText>(R.id.originalTextEdit)
+        val translatedText = requireView().findViewById<TextView>(R.id.translatedText)
+        val location = requireView().findViewById<EditText>(R.id.locationEdit)
+        val date = requireView().findViewById<TextView>(R.id.date)
+        val note = requireView().findViewById<EditText>(R.id.noteEdit)
 
-
-        if (viewModel.selectedIndex.value != null && viewModel.selectedIndex.value != -1) {
-            val translation = viewModel.translationsList.value?.get(viewModel.selectedIndex.value!!)
-            if (translation != null) {
-                date?.text = translation.date.toString()
-                original_text?.setText(translation.originalText)
-                translated_text?.text = translation.translatedText
-                location?.setText(translation.locationString)
-                note?.setText(translation.note)
-            } else {
-                // TODO: make an error message...
-                date?.text = "1/11/1111"
-                original_text?.setText("これをわざわざ翻訳しないでください")
-                translated_text?.text = "Do not bother translating this"
-                location?.setText("1 One Street, One Suburb, One City, 1111,  One Country")
-                note?.setText("This is a text note to test the note.")
-            }
+        if (existingTranslation != null){
+            originalText.setText(existingTranslation!!.originalText)
+            translatedText.text = existingTranslation!!.translatedText
+            location.setText(existingTranslation!!.locationString)
+            date.text = existingTranslation!!.date.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT))
+            note.setText(existingTranslation!!.note)
         } else {
-            // TODO: make an error message...
-            date?.text = "1/11/1111"
-            original_text?.setText("これをわざわざ翻訳しないでください")
-            translated_text?.text = "Do not bother translating this"
-            location?.setText("1 One Street, One Suburb, One City, 1111,  One Country")
-            note?.setText("This is a text note to test the note.")
+            errorToast()
+            requireActivity().onBackPressed()
         }
     }
 
