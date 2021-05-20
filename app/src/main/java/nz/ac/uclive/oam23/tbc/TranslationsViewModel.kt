@@ -54,18 +54,8 @@ class TranslationsViewModel(private val translationRepository: TranslationReposi
         }
     }
 
-    fun editTranslation(translation: PreviousTranslation, index: Int = selectedIndex.value ?: -1) = viewModelScope.launch {
-        // edit that translation. if it's -1 tho or > len then that's an issue
-        d("Test", "Edited it!")
-        if (!(index < 0 || translationsList.value == null || index > translationsList.value!!.size)) {
-            val updatingTrans = translationsList.value?.get(index)
-            if (updatingTrans != null) {
-                updatingTrans.originalText = translation.originalText
-                updatingTrans.translatedText = translation.translatedText
-                updatingTrans.note = translation.note
-                translationRepository.update(updatingTrans)
-            }
-        }
+    fun editTranslation(updatedTranslation: Translation) = viewModelScope.launch {
+        translationRepository.update(updatedTranslation)
     }
 
 }
