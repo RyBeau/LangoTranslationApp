@@ -5,9 +5,13 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.Navigation
+import androidx.navigation.findNavController
 
 
 /**
@@ -15,14 +19,10 @@ import androidx.fragment.app.activityViewModels
  */
 class ViewTranslationFragment : Fragment() {
 
-    private lateinit var translation: Translation;
+    private lateinit var translation: Translation
 
     private val viewModel: TranslationsViewModel by activityViewModels() {
         TranslationsViewModelFactory((activity?.application as TBCApplication).repository)
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
     }
 
     /**
@@ -50,21 +50,22 @@ class ViewTranslationFragment : Fragment() {
             fillTextViews()
         })
         return inflater.inflate(R.layout.fragment_view_translation, container, false)
+    }
 
-        val view = inflater.inflate(R.layout.fragment_view_translation, container, false)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         view.findViewById<Button>(R.id.editTranslationButton).setOnClickListener {
-            Navigation.findNavController(view!!).navigate(R.id.action_navigation_viewTranslation_to_navigation_saveEdit)
+            val bundle = bundleOf("translationKey" to translation.id)
+            view.findNavController().navigate(R.id.action_navigation_viewTranslation_to_navigation_saveEdit, bundle)
         }
-
-        return view
     }
 
     private fun fillTextViews() {
         val originalText = view?.findViewById<TextView>(R.id.originalText)
         val translatedText = view?.findViewById<TextView>(R.id.translatedText)
-        val location = view?.findViewById<TextView>(R.id.location)
-        val note = view?.findViewById<TextView>(R.id.note)
+        val location = view?.findViewById<TextView>(R.id.locationText)
+        val note = view?.findViewById<TextView>(R.id.noteText)
         val date = view?.findViewById<TextView>(R.id.date)
 
         originalText?.text = translation.originalText
