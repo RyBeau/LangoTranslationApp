@@ -73,7 +73,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/border"
-                android:inputType="text"
+                android:gravity="top|left"
+                android:inputType="textMultiLine|text"
                 android:minHeight="150dp"
                 android:padding="3dp"
                 android:textSize="16sp" />
@@ -110,8 +111,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/border"
-                android:inputType="text"
+                android:gravity="top|left"
+                android:inputType="textMultiLine|text"
                 android:minHeight="75dp"
+                android:padding="3dp"
                 android:textSize="16sp" />
 
             <TextView
@@ -128,8 +131,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/border"
-                android:inputType="text"
+                android:gravity="top|left"
+                android:inputType="textMultiLine|text"
                 android:minHeight="75dp"
+                android:padding="3dp"
                 android:textSize="16sp" />
 
             <LinearLayout
