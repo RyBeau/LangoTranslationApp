@@ -13,13 +13,18 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 
-private const val SAVE_MODE = true
-
 class SaveEditTranslationFragment : Fragment() {
+
+    enum class Mode {
+        EDIT_MODE,
+        NEW_MODE
+    }
 
     private val viewModel: TranslationsViewModel by activityViewModels() {
         TranslationsViewModelFactory((activity?.application as TBCApplication).repository)
     }
+
+    private lateinit var fragmentMode: Mode
 
 
 
@@ -69,6 +74,22 @@ class SaveEditTranslationFragment : Fragment() {
     ): View? {
         val mainActivity = activity as MainActivity
         mainActivity.setLocation(MainActivity.Location.SAVE_EDIT_TRANSLATION)
+        val key: Long
+        if (requireArguments().getString("translationKey") != null){
+            key = requireArguments().getLong("translationKey")
+            fragmentMode = Mode.EDIT_MODE
+        } else if (requireArguments().getString("untranslatedText") != null &&
+                requireArguments().getString("translatedText") != null){
+            fragmentMode = Mode.NEW_MODE
+        } else {
+            Toast.makeText(
+                    requireActivity(),
+                    getString(R.string.translation_not_found),
+                    Toast.LENGTH_LONG
+            ).show()
+            requireActivity().onBackPressed()
+        }
+
         return inflater.inflate(R.layout.fragment_save_edit_translation, container, false)
     }
 
@@ -129,11 +150,6 @@ class SaveEditTranslationFragment : Fragment() {
             translated_text?.text = "Do not bother translating this"
             location?.setText("1 One Street, One Suburb, One City, 1111,  One Country")
             note?.setText("This is a text note to test the note.")
-        }
-
-
-        if (!SAVE_MODE) {
-            original_text?.isEnabled = false
         }
     }
 
