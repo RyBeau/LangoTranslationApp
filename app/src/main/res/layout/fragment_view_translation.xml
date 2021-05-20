@@ -91,7 +91,7 @@
                 android:textSize="18sp" />
 
             <TextView
-                android:id="@+id/locationEdit"
+                android:id="@+id/locationText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:minHeight="75dp"
@@ -107,7 +107,7 @@
                 android:textSize="18sp" />
 
             <TextView
-                android:id="@+id/noteEdit"
+                android:id="@+id/noteText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:minHeight="75dp"
