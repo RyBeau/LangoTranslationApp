@@ -1,7 +1,6 @@
 package nz.ac.uclive.oam23.tbc
 
 import android.os.Bundle
-import android.os.Environment
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -16,7 +15,6 @@ import com.google.mlkit.vision.text.Text
 import com.google.mlkit.vision.text.TextRecognition
 import java.io.File
 import java.io.IOException
-import java.lang.StringBuilder
 
 
 class ProcessingFragment : Fragment() {
@@ -31,8 +29,8 @@ class ProcessingFragment : Fragment() {
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+            inflater: LayoutInflater, container: ViewGroup?,
+            savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
         val mainActivity = activity as MainActivity
@@ -46,9 +44,9 @@ class ProcessingFragment : Fragment() {
         currentAction.text = getString(R.string.recognising_text)
         arguments?.getString("photoPath")?.let { detectText(it) } ?: run {
             Toast.makeText(
-                requireActivity(),
-                getString(R.string.no_image),
-                Toast.LENGTH_LONG
+                    requireActivity(),
+                    getString(R.string.no_image),
+                    Toast.LENGTH_LONG
             ).show()
             requireActivity().onBackPressed()
         }
@@ -59,15 +57,17 @@ class ProcessingFragment : Fragment() {
         Log.d("Text", path)
         super.onStop()
         val file = File(path)
-        file.delete()
+        if (file.exists()){
+            file.delete()
+        }
     }
 
     private fun detectText(imagePath: String) {
         path = imagePath
         val image: InputImage
         try {
-            image = InputImage.fromFilePath(requireContext(),  ("file://$imagePath").toUri())
-            val result = recogniser.process(image)
+            image = InputImage.fromFilePath(requireContext(), ("file://$imagePath").toUri())
+            recogniser.process(image)
                 .addOnSuccessListener { visionText -> run {
                     processVisionText(visionText)
                 }
@@ -75,9 +75,9 @@ class ProcessingFragment : Fragment() {
                 .addOnFailureListener { e ->
                     run {
                         Toast.makeText(
-                            requireActivity(),
-                            getString(R.string.text_recognition_fail),
-                            Toast.LENGTH_LONG
+                                requireActivity(),
+                                getString(R.string.text_recognition_fail),
+                                Toast.LENGTH_LONG
                         ).show()
                         e.printStackTrace()
                         requireActivity().onBackPressed()
@@ -103,7 +103,7 @@ class ProcessingFragment : Fragment() {
         }
     }
 
-    private fun translateText (text: String){
+    private fun translateText(text: String){
         currentAction.text = getString(R.string.translating_text)
         Log.d("Text", text)
     }
