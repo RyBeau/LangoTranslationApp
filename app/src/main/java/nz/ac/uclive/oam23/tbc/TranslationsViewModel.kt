@@ -31,7 +31,6 @@ class TranslationsViewModel(private val translationRepository: TranslationReposi
 //    )
 //    val tempTranslationsList: LiveData<MutableList<PreviousTranslation>>
 //        get() = _tempTranslationsList
-    val translationsList: LiveData<List<Translation>> = translationRepository.translations.asLiveData()
 
     fun getTranslation(key: Long): LiveData<Translation>{
         return translationRepository.getTranslation(key).asLiveData()
