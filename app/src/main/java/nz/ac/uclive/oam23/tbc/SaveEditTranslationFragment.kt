@@ -9,6 +9,13 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import com.android.volley.*
+import com.android.volley.toolbox.StringRequest
+import com.android.volley.toolbox.Volley
+import com.google.gson.JsonParser
+import org.json.JSONArray
+import org.json.JSONObject
+
 
 private const val SAVE_MODE = true
 
@@ -18,6 +25,9 @@ class SaveEditTranslationFragment : Fragment() {
         TranslationsViewModelFactory((activity?.application as TBCApplication).repository)
     }
 
+    val REQUEST_TAG = "translation"
+    val API_KEY = "d4c58350bbc547b8a7d98270627274e5"
+    var requestQueue: RequestQueue? = null
 
 
 //    var toolbar: Toolbar? = null
@@ -74,7 +84,12 @@ class SaveEditTranslationFragment : Fragment() {
 
         autoFill()
 
+        requestQueue = Volley.newRequestQueue(context)
 
+        val jsonObject = JSONObject()
+        jsonObject.put("Text", "Hello, what is your name?")
+        val jsonArray = JSONArray()
+        jsonArray.put(jsonObject)
 
         view.findViewById<Button>(R.id.saveEditTranslationButton).setOnClickListener {
             val original_text = view?.findViewById<EditText>(R.id.originalTextEdit).text.toString()
@@ -87,10 +102,72 @@ class SaveEditTranslationFragment : Fragment() {
             viewModel.editTranslation(tempTranslation)
         }
 
+        val translateButton = view.findViewById<Button>(R.id.tempTranslateButton)
+        translateButton.setOnClickListener(object : View.OnClickListener {
+            override fun onClick(v: View?) {
+                sendRequest()
+            }
+        })
+
+
 
 
 //        toolbar?.setNavigationIcon(R.drawable.ic_launcher_foreground)
 //        toolbar?.setNavigationOnClickListener (Navigation.createNavigateOnClickListener(R.id.action_saveEditTranslationFragment_to_homeFragment))
+    }
+
+    override fun onStop() {
+        super.onStop()
+        if (requestQueue != null) {
+            requestQueue?.cancelAll(REQUEST_TAG)
+        }
+    }
+
+    fun sendRequest() {
+
+        val translatedTextBox = view?.findViewById<TextView>(R.id.translatedText)
+        val original_text = view?.findViewById<EditText>(R.id.originalTextEdit)?.text.toString()
+        val url = "https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&to=de"
+        val request: StringRequest =
+            object : StringRequest(Method.POST, url, object : Response.Listener<String?> {
+                override fun onResponse(response: String?) {
+                    if (response != null) {
+                        d("req", "Your Array Response " + response)
+
+                        val parser = JsonParser()
+                        val json = parser.parse(response).asJsonArray
+
+                        translatedTextBox?.text = json.get(0).asJsonObject.get("translations").asJsonArray.get(0).asJsonObject.get("text").asString
+                            .toString()
+                    } else {
+                        d("req", "Your Array Response "+ "Data Null")
+                        translatedTextBox?.text = "No translation received"
+                    }
+                }
+            }, object : Response.ErrorListener {
+                override fun onErrorResponse(error: VolleyError) {
+                    d("req", "error is " + error)
+                    translatedTextBox?.text = "error is " + error.message
+                }
+            }) {
+
+                @Throws(AuthFailureError::class)
+                override fun getHeaders(): Map<String, String> {
+                    val params: MutableMap<String, String> = HashMap()
+                    params["Content-Type"] = "application/json; charset=UTF-8"
+                    params["Ocp-Apim-Subscription-Key"] = API_KEY
+                    return params
+                }
+
+                override fun getBody(): ByteArray {
+                    val jsonObject = JSONObject()
+                    jsonObject.put("Text", original_text)
+                    val jsonArray = JSONArray()
+                    jsonArray.put(jsonObject)
+                    return jsonArray.toString().toByteArray()
+                }
+            }
+        requestQueue?.add(request)
     }
 
     fun autoFill() {
@@ -133,5 +210,4 @@ class SaveEditTranslationFragment : Fragment() {
             original_text?.isEnabled = false
         }
     }
-
 }
