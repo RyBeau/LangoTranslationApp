@@ -70,7 +70,7 @@ class ViewTranslationFragment : Fragment() {
 
         originalText?.text = translation.originalText
         translatedText?.text = translation.translatedText
-        location?.text = translation.location.toString()
+        location?.text = translation.locationString.toString()
         note?.text = translation.note
         date?.text = translation.date.toString()
     }
