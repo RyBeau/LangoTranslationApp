@@ -16,6 +16,7 @@ import com.google.mlkit.vision.text.Text
 import com.google.mlkit.vision.text.TextRecognition
 import java.io.File
 import java.io.IOException
+import java.lang.StringBuilder
 
 
 class ProcessingFragment : Fragment() {
@@ -89,17 +90,15 @@ class ProcessingFragment : Fragment() {
 
     private fun processVisionText(text: Text){
         val blocks = text.textBlocks
-        Log.d("Text", blocks.toString())
         if(blocks.size < 1){
             Toast.makeText(requireActivity(), getString(R.string.no_text_found), Toast.LENGTH_LONG).show()
             requireActivity().onBackPressed()
         } else {
-            var allText = ""
+            val stringBuilder = StringBuilder()
             for (block in blocks){
-                Log.d("Text", block.text)
-                allText = "${block.text} "
+                stringBuilder.append("${block.text} ")
             }
-            translateText(allText)
+            translateText(stringBuilder.toString())
         }
     }
 
