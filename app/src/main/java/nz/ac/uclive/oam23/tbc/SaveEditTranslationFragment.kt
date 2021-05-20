@@ -1,5 +1,7 @@
 package nz.ac.uclive.oam23.tbc
 
+import android.annotation.SuppressLint
+import android.location.Geocoder
 import android.os.Bundle
 import android.util.Log.d
 import android.view.*
@@ -12,6 +14,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.model.LatLng
+import java.time.LocalDate
+import java.util.*
 
 class SaveEditTranslationFragment : Fragment() {
 
@@ -25,6 +31,7 @@ class SaveEditTranslationFragment : Fragment() {
     }
 
     private lateinit var fragmentMode: Mode
+    private lateinit var latLng: LatLng
 
 
 
@@ -81,10 +88,13 @@ class SaveEditTranslationFragment : Fragment() {
         } else if (requireArguments().getString("untranslatedText") != null &&
                 requireArguments().getString("translatedText") != null){
             fragmentMode = Mode.NEW_MODE
+            requireArguments().getString("untranslatedText")?.let {
+                requireArguments().getString("translatedText")?.let {
+                    it1 -> fillNew(it, it1) } }
         } else {
             Toast.makeText(
                     requireActivity(),
-                    getString(R.string.translation_not_found),
+                    getString(R.string.error),
                     Toast.LENGTH_LONG
             ).show()
             requireActivity().onBackPressed()
@@ -99,22 +109,54 @@ class SaveEditTranslationFragment : Fragment() {
         autoFill()
 
 
-
+    if (fragmentMode == Mode.NEW_MODE){
         view.findViewById<Button>(R.id.saveEditTranslationButton).setOnClickListener {
-            val original_text = view.findViewById<EditText>(R.id.originalTextEdit).text.toString()
-            val translated_text = view.findViewById<TextView>(R.id.translatedText).text.toString()
+            val originalText = view.findViewById<EditText>(R.id.originalTextEdit).text.toString()
+            val translatedText = view.findViewById<TextView>(R.id.translatedText).text.toString()
+            val locationString = view.findViewById<EditText>(R.id.locationEdit).text.toString()
+            val note = view.findViewById<EditText>(R.id.noteEdit).text.toString()
+
+            val translation = Translation(originalText, translatedText, LocalDate.now(), locationString, latLng ,note)
+            viewModel.addTranslation(translation)
+        }
+    } else {
+        view.findViewById<Button>(R.id.saveEditTranslationButton).setOnClickListener {
+            val originalText = view.findViewById<EditText>(R.id.originalTextEdit).text.toString()
+            val translatedText = view.findViewById<TextView>(R.id.translatedText).text.toString()
             val location = view.findViewById<EditText>(R.id.locationEdit).text.toString()
             val note = view.findViewById<EditText>(R.id.noteEdit).text.toString()
             val date = view.findViewById<TextView>(R.id.date).text.toString()
-
-            val tempTranslation = PreviousTranslation(date, original_text, translated_text, note)
-            viewModel.editTranslation(tempTranslation)
+//            viewModel.editTranslation(tempTranslation)
         }
+    }
+
+
 
 
 
 //        toolbar?.setNavigationIcon(R.drawable.ic_launcher_foreground)
 //        toolbar?.setNavigationOnClickListener (Navigation.createNavigateOnClickListener(R.id.action_saveEditTranslationFragment_to_homeFragment))
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun fillNew(originalTextString: String, translatedTextString: String){
+        val originalText = requireView().findViewById<EditText>(R.id.originalTextEdit)
+        val translatedText = requireView().findViewById<TextView>(R.id.translatedText)
+        val location = requireView().findViewById<EditText>(R.id.locationEdit)
+        val date = requireView().findViewById<TextView>(R.id.date)
+
+        val locationClient = LocationServices.getFusedLocationProviderClient(requireContext())
+        locationClient.lastLocation.addOnSuccessListener {
+            latLng = LatLng(it.latitude, it.longitude)
+            val geocoder = Geocoder(requireContext(), Locale.getDefault())
+            val addressList = geocoder.getFromLocation(it.latitude, it.longitude, 1)
+            val locationString = "${addressList[0].getAddressLine(0)}, ${addressList[0].locality}, " +
+                    "${addressList[0].postalCode}, ${addressList[0].postalCode}"
+            location.setText(locationString)
+        }
+        originalText.setText(originalTextString)
+        translatedText.text = translatedTextString
+
     }
 
     fun autoFill() {
@@ -133,7 +175,7 @@ class SaveEditTranslationFragment : Fragment() {
                 date?.text = translation.date.toString()
                 original_text?.setText(translation.originalText)
                 translated_text?.text = translation.translatedText
-                location?.setText(translation.location.toString())
+                location?.setText(translation.locationString)
                 note?.setText(translation.note)
             } else {
                 // TODO: make an error message...
