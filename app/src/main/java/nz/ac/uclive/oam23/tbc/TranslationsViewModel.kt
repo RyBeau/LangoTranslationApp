@@ -25,6 +25,10 @@ class TranslationsViewModel(private val translationRepository: TranslationReposi
 //        get() = _tempTranslationsList
     val translationsList: LiveData<List<Translation>> = translationRepository.translations.asLiveData()
 
+    fun getTranslation(key: Long): LiveData<Translation>{
+        return translationRepository.getTranslation(key).asLiveData()
+    }
+
     fun setSelectedIndex(position: Int) {
         _selectedIndex.value = position
     }

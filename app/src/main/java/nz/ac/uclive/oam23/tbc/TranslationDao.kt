@@ -17,6 +17,9 @@ interface TranslationDao {
 
     @Query("SELECT * FROM translation")
     fun getAll(): Flow<List<Translation>>
+
+    @Query("SELECT * FROM translation WHERE id = :key")
+    fun getTranslation(key: Long): Flow<Translation>
 }
 
 class TranslationRepository(private val translationDao: TranslationDao) {
@@ -26,5 +29,9 @@ class TranslationRepository(private val translationDao: TranslationDao) {
     @WorkerThread
     suspend fun insert(translation: Translation) {
         translationDao.insert(translation)
+    }
+
+    fun getTranslation(key: Long): Flow<Translation>{
+        return translationDao.getTranslation(key)
     }
 }
