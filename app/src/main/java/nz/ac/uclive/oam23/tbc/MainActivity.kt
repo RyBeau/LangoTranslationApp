@@ -1,19 +1,13 @@
 package nz.ac.uclive.oam23.tbc
 
-import android.Manifest
 import android.app.AlertDialog
-import android.content.Context
-import android.content.pm.PackageManager
 import android.os.Bundle
-import android.util.Log
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
+import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class MainActivity : AppCompatActivity() {
 
@@ -85,6 +79,7 @@ class MainActivity : AppCompatActivity() {
                 R.id.navigation_home, R.id.navigation_preferences, R.id.navigation_previous))
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
+        setTheme(this)
     }
 
 }
