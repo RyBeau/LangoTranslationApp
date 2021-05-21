@@ -23,7 +23,7 @@ class MainActivity : AppCompatActivity() {
      * Enum for locations representing each fragment.
      */
     enum class Location {
-        HOME, PREFERENCES, PREVIOUS_TRANSLATIONS, SAVE_EDIT_TRANSLATION, VIEW_TRANSLATION
+        HOME, PREFERENCES, PREVIOUS_TRANSLATIONS, SAVE_EDIT_TRANSLATION, VIEW_TRANSLATION, PROCESSING
     }
 
     /**

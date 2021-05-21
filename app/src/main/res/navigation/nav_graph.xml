@@ -14,14 +14,14 @@
             android:id="@+id/action_homeFragment_to_previousTranslationsFragment"
             app:destination="@id/previousTranslationsFragment" />
         <action
-            android:id="@+id/action_homeFragment_to_saveEditTranslationFragment"
-            app:destination="@id/saveEditTranslationFragment" />
-        <action
             android:id="@+id/action_homeFragment_to_viewTranslationFragment"
             app:destination="@id/viewTranslationFragment" />
         <action
             android:id="@+id/action_homeFragment_to_preferencesFragment"
             app:destination="@id/preferencesFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_processingFragment"
+            app:destination="@id/processingFragment" />
     </fragment>
     <fragment
         android:id="@+id/saveEditTranslationFragment"
@@ -70,5 +70,17 @@
         <action
             android:id="@+id/action_viewTranslationFragment_to_storedTranslationsFragment"
             app:destination="@id/previousTranslationsFragment" />
+        <action
+            android:id="@+id/action_viewTranslationFragment_to_saveEditTranslationFragment"
+            app:destination="@id/saveEditTranslationFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/processingFragment"
+        android:name="nz.ac.uclive.oam23.tbc.ProcessingFragment"
+        android:label="fragment_processing"
+        tools:layout="@layout/fragment_processing" >
+        <action
+            android:id="@+id/action_processingFragment_to_saveEditTranslationFragment"
+            app:destination="@id/saveEditTranslationFragment" />
     </fragment>
 </navigation>

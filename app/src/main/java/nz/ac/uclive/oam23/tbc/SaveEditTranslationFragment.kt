@@ -8,6 +8,13 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.core.net.toUri
+import com.google.mlkit.vision.common.InputImage
+import com.google.mlkit.vision.text.TextRecognition
+import java.io.IOException
 import androidx.fragment.app.activityViewModels
 import com.android.volley.*
 import com.android.volley.toolbox.StringRequest
