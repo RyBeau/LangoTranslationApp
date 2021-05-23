@@ -37,8 +37,8 @@
         android:label="fragment_processing"
         tools:layout="@layout/fragment_processing" >
         <action
-            android:id="@+id/action_processingFragment_to_saveEditTranslationFragment2"
-            app:destination="@id/saveEditTranslationFragment2" />
+            android:id="@+id/action_processingFragment_to_navigation_saveEdit"
+            app:destination="@id/navigation_saveEdit" />
     </fragment>
     <fragment
         android:id="@+id/navigation_saveEdit"

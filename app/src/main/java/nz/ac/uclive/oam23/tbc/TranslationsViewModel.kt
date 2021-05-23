@@ -7,10 +7,14 @@ import android.util.Log.d
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.android.volley.RequestQueue
 
 class TranslationsViewModel(private val translationRepository: TranslationRepository): ViewModel() {
 
     val translationsList: LiveData<List<Translation>> = translationRepository.translations.asLiveData()
+
+    val REQUEST_TAG = "translation"
+    val API_KEY = "d4c58350bbc547b8a7d98270627274e5"
 
     // TODO: Once using navigation, switch to passing translation as a parameter on navigation to other fragments
     private var _selectedIndex = MutableLiveData(-1)
@@ -19,6 +23,10 @@ class TranslationsViewModel(private val translationRepository: TranslationReposi
 
     fun setSelectedIndex(position: Int) {
         _selectedIndex.value = position
+    }
+
+    suspend fun getTranslation(id: Long): Translation {
+        return translationRepository.getTranslationById(id)
     }
 
     fun addTranslation(translation: Translation) = viewModelScope.launch {
@@ -35,18 +43,19 @@ class TranslationsViewModel(private val translationRepository: TranslationReposi
         }
     }
 
-    fun editTranslation(translation: PreviousTranslation, index: Int = selectedIndex.value ?: -1) = viewModelScope.launch {
+    fun editTranslation(translation: Translation) = viewModelScope.launch {
+        translationRepository.update(translation)
         // edit that translation. if it's -1 tho or > len then that's an issue
-        d("Test", "Edited it!")
-        if (!(index < 0 || translationsList.value == null || index > translationsList.value!!.size)) {
-            val updatingTrans = translationsList.value?.get(index)
-            if (updatingTrans != null) {
-                updatingTrans.originalText = translation.originalText
-                updatingTrans.translatedText = translation.translatedText
-                updatingTrans.note = translation.note
-                translationRepository.update(updatingTrans)
-            }
-        }
+//        d("Test", "Edited it!")
+//        if (!(index < 0 || translationsList.value == null || index > translationsList.value!!.size)) {
+//            val updatingTrans = translationsList.value?.get(index)
+//            if (updatingTrans != null) {
+//                updatingTrans.originalText = translation.originalText
+//                updatingTrans.translatedText = translation.translatedText
+//                updatingTrans.note = translation.note
+//                translationRepository.update(updatingTrans)
+//            }
+//        }
     }
 
 }
