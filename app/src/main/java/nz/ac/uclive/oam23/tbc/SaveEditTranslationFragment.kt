@@ -109,7 +109,6 @@ class SaveEditTranslationFragment : Fragment() {
         jsonArray.put(jsonObject)
 
         if (saveMode) {
-            view.findViewById<Button>(R.id.saveEditTranslationButton).setText(R.string.save)
             view.findViewById<Button>(R.id.saveEditTranslationButton).setOnClickListener {
                 val original_text =
                     view?.findViewById<EditText>(R.id.originalTextEdit).text.toString()
