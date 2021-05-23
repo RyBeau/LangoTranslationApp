@@ -36,6 +36,7 @@
         android:name="nz.ac.uclive.oam23.tbc.ProcessingFragment"
         android:label="fragment_processing"
         tools:layout="@layout/fragment_processing" >
+        <!-- TODO Getting an error regarding saveEditTranslationFragment2 -->
         <action
             android:id="@+id/action_processingFragment_to_navigation_saveEdit"
             app:destination="@id/navigation_saveEdit" />
