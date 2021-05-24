@@ -17,6 +17,8 @@ import androidx.core.content.FileProvider
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.observe
+import androidx.navigation.Navigation
 import androidx.navigation.findNavController
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -158,6 +160,21 @@ class HomeFragment : Fragment() {
      */
     private val callback = OnMapReadyCallback { googleMap ->
         googleMapRef = googleMap
+
+        viewModel.translationsList.observe(viewLifecycleOwner) { newTranslations ->
+            for (translation in newTranslations) {
+                val marker = LatLng(translation.location.longitude, translation.location.latitude)
+                googleMap.addMarker(MarkerOptions().position(marker).title(translation.note))
+                googleMap.setOnMarkerClickListener { marker ->
+                    Toast.makeText(requireContext(), translation.note, Toast.LENGTH_LONG).show()
+//                    viewModel.setSelectedIndex(position)
+//                    Navigation.findNavController(requireView()).navigate(R.id.action_navigation_previous_to_navigation_viewTranslation)
+                    true
+                }
+
+            }
+        }
+
         val sydney = LatLng(-34.0, 151.0)
         googleMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
         googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
