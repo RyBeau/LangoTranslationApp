@@ -34,6 +34,8 @@
     <string name="no_text_found">No Text Found</string>
     <string name="file_error">Error occurred while creating the file.</string>
     <string name="no_image">No Image Provided</string>
+    <string name="errorOccurred">An error has occurred</string>
+    <string name="returnWithoutSaving">Return without saving</string>
     <!-- Preferences -->
     <string name="feedback_header">Feedback</string>
     <string name="feedback_description">Report technical issues or suggest new features</string>

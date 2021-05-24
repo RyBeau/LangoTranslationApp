@@ -20,10 +20,6 @@ class ViewTranslationFragment : Fragment() {
         TranslationsViewModelFactory((activity?.application as TBCApplication).repository)
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
-
     /**
      * Inflates the fragment layout
      */
