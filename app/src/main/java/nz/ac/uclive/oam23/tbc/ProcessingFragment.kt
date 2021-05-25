@@ -44,7 +44,6 @@ class ProcessingFragment : NoNavFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        (activity as AppCompatActivity?)!!.supportActionBar!!.hide()
         savedInstanceState?.get("photoPath")?.let { Log.d("Test", it.toString()) }
     }
 
@@ -55,6 +54,7 @@ class ProcessingFragment : NoNavFragment() {
         // Inflate the layout for this fragment
         val mainActivity = activity as MainActivity
         mainActivity.setLocation(MainActivity.Location.PROCESSING)
+        mainActivity.supportActionBar!!.hide()
         return inflater.inflate(R.layout.fragment_processing, container, false)
     }
 
