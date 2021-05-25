@@ -51,9 +51,6 @@ class SaveEditTranslationFragment : NoNavFragment() {
     private lateinit var latLng: LatLng
     private var existingTranslation: Translation? = null
 
-
-    private var saveMode = false
-    private var translationId: Long? = null
     private var originalText: String? = null
     private var translatedText: String? = null
     private var requestQueue: RequestQueue? = null
@@ -97,6 +94,7 @@ class SaveEditTranslationFragment : NoNavFragment() {
     ): View? {
         val mainActivity = activity as MainActivity
         mainActivity.setLocation(MainActivity.Location.SAVE_EDIT_TRANSLATION)
+        mainActivity.supportActionBar!!.show()
         return inflater.inflate(R.layout.fragment_save_edit_translation, container, false)
     }
 

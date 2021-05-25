@@ -2,16 +2,13 @@ package nz.ac.uclive.oam23.tbc
 
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
 
-
-/**
- * A simple [Fragment] subclass.
- * Use the [PreferencesFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class PreferencesFragment : PreferenceFragmentCompat() {
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
@@ -33,7 +30,15 @@ class PreferencesFragment : PreferenceFragmentCompat() {
 
     }
 
-
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        val mainActivity = activity as MainActivity
+        mainActivity.setLocation(MainActivity.Location.PREFERENCES)
+        return super.onCreateView(inflater, container, savedInstanceState)
+    }
 
 
 

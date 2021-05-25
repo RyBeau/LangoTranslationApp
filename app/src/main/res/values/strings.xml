@@ -42,6 +42,7 @@
     <string name="errorOccurred">An error has occurred</string>
     <string name="returnWithoutSaving">Return without saving</string>
     <string name="delete">Delete</string>
+    <string name="back_not_allowed">Back Not Allowed</string>
     <!-- Preferences -->
     <string name="feedback_header">Feedback</string>
     <string name="feedback_description">Report technical issues or suggest new features</string>
