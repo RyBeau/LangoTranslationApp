@@ -155,6 +155,9 @@ class SaveEditTranslationFragment : Fragment() {
 
                 val translation = Translation(originalText, translatedText, LocalDate.now(), locationString, latLng, note)
                 viewModel.addTranslation(translation)
+
+                requireActivity().title = getString(R.string.title_save_translation)
+
             }
         } else {
             view.findViewById<Button>(R.id.saveEditTranslationButton).setOnClickListener {
@@ -162,6 +165,7 @@ class SaveEditTranslationFragment : Fragment() {
                 existingTranslation?.let { it1 -> viewModel.editTranslation(it1) }
                 (requireActivity() as MainActivity).translationSaved()
             }
+            requireActivity().title = getString(R.string.title_edit_translation)
         }
     }
 

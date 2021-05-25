@@ -12,6 +12,9 @@
     <string name="title_home">Home</string>
     <string name="title_preferences">Preferences</string>
     <string name="title_previous_translations">Previous Translations</string>
+    <string name="title_view_translation">View Translations</string>
+    <string name="title_save_translation">Save Translations</string>
+    <string name="title_edit_translation">Edit Translations</string>
     <string name="nav_previous_translations">Previous</string>
     <string name="date_desc">Date ▼</string>
     <string name="date_asc">Date ▲</string>
