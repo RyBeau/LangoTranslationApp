@@ -11,6 +11,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doAfterTextChanged
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.activityViewModels
@@ -78,7 +79,6 @@ class SaveEditTranslationFragment : Fragment() {
         super.onViewStateRestored(savedInstanceState)
 
         if (savedInstanceState?.containsKey("editedNote") == true){
-            Log.d("Test", "This ran")
             requireView().findViewById<EditText>(R.id.noteEdit).setText(savedInstanceState.getString("editedNote"))
         }
         if (savedInstanceState?.containsKey("editedLocation") == true){
@@ -121,6 +121,7 @@ class SaveEditTranslationFragment : Fragment() {
         if (requireArguments().getLong("translationKey") != (-1).toLong()) {
             key = requireArguments().getLong("translationKey")
             fragmentMode = Mode.EDIT_MODE
+            (requireActivity() as AppCompatActivity).supportActionBar!!.title = getString(R.string.title_edit_translation)
             viewModel.getTranslation(key).observe(viewLifecycleOwner, { dbTranslation ->
                 existingTranslation = dbTranslation
                 fillFromExisting()
@@ -130,12 +131,13 @@ class SaveEditTranslationFragment : Fragment() {
             fragmentMode = Mode.NEW_MODE
             requireArguments().getString("untranslatedText")?.let {
                 requireArguments().getString("translatedText")?.let { it1 -> fillNew(it, it1) }
+                (requireActivity() as AppCompatActivity).supportActionBar!!.title = getString(R.string.title_save_translation)
             }
         } else {
             errorToast()
             requireActivity().onBackPressed()
         }
-
+        Log.d("Test", requireActivity().title.toString())
         setButtonCallbacks(view)
 //        toolbar?.setNavigationIcon(R.drawable.ic_launcher_foreground)
 //        toolbar?.setNavigationOnClickListener (Navigation.createNavigateOnClickListener(R.id.action_saveEditTranslationFragment_to_homeFragment))
@@ -143,6 +145,7 @@ class SaveEditTranslationFragment : Fragment() {
 
     private fun setButtonCallbacks(view: View){
         view.findViewById<Button>(R.id.cancelEditTranslationButton).setOnClickListener {
+            Log.d("Test", requireActivity().title.toString())
             requireActivity().onBackPressed()
         }
 
@@ -155,9 +158,6 @@ class SaveEditTranslationFragment : Fragment() {
 
                 val translation = Translation(originalText, translatedText, LocalDate.now(), locationString, latLng, note)
                 viewModel.addTranslation(translation)
-
-                requireActivity().title = getString(R.string.title_save_translation)
-
             }
         } else {
             view.findViewById<Button>(R.id.saveEditTranslationButton).setOnClickListener {
@@ -165,7 +165,6 @@ class SaveEditTranslationFragment : Fragment() {
                 existingTranslation?.let { it1 -> viewModel.editTranslation(it1) }
                 (requireActivity() as MainActivity).translationSaved()
             }
-            requireActivity().title = getString(R.string.title_edit_translation)
         }
     }
 
