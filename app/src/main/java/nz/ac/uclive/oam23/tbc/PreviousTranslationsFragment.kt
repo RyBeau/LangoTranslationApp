@@ -23,7 +23,7 @@ import java.time.LocalDate
 class PreviousTranslationsFragment : Fragment(), PreviousTranslationAdapter.OnPreviousTranslationListener {
 
     private val viewModel: TranslationsViewModel by activityViewModels() {
-        TranslationsViewModel.TranslationsViewModelFactory((activity?.application as TBCApplication).repository)
+        TranslationsViewModelFactory((activity?.application as TBCApplication).repository)
     }
 
     override fun onCreateView(
@@ -44,11 +44,6 @@ class PreviousTranslationsFragment : Fragment(), PreviousTranslationAdapter.OnPr
         recyclerView.apply {
             adapter = translationAdapter
             layoutManager = LinearLayoutManager(activity)
-        }
-
-        view.findViewById<Button>(R.id.addFillerTranslationButton).setOnClickListener {
-            val translation = Translation("temp original text", "temp translated text", LocalDate.now(), "temp note", LatLng(0.0, 0.0), "Note")
-            viewModel.addTranslation(translation)
         }
 
         return view

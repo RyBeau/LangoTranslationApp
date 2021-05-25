@@ -6,7 +6,6 @@ import android.app.AlertDialog
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.*
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
@@ -15,35 +14,23 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doAfterTextChanged
-import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.activityViewModels
-import androidx.navigation.fragment.findNavController
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLng
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.util.*
-import androidx.lifecycle.viewModelScope
-import androidx.navigation.Navigation
-import androidx.navigation.findNavController
 import com.android.volley.AuthFailureError
 import com.android.volley.RequestQueue
 import com.android.volley.Response
-import com.android.volley.VolleyError
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
-import com.google.android.gms.maps.model.LatLng
 import com.google.gson.JsonParser
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.json.JSONObject
-import java.time.LocalDate
-import java.util.*
 
 
 class SaveEditTranslationFragment : Fragment() {
@@ -67,27 +54,6 @@ class SaveEditTranslationFragment : Fragment() {
     private var originalText: String? = null
     private var translatedText: String? = null
     private var requestQueue: RequestQueue? = null
-
-//    var toolbar: Toolbar? = null
-//    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-//        toolbar = view?.findViewById<Toolbar>(R.id.toolbar)
-//        toolbar?.inflateMenu(R.menu.edit_save_menu)
-//
-//        toolbar?.setOnMenuItemClickListener {
-//            when (it.itemId) {
-//                R.id.back_action -> {
-//                    Toast.makeText(context, "Back", Toast.LENGTH_SHORT).show()
-//                    true
-//                }
-//                R.id.delete_action -> {
-//                    Toast.makeText(context, "Delete", Toast.LENGTH_SHORT).show()
-//                    viewModel.deleteTranslation(viewModel.selectedIndex.value!!)
-//                    true
-//                }
-//                else -> false
-//            }
-//        }
-//    }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
@@ -114,38 +80,12 @@ class SaveEditTranslationFragment : Fragment() {
         }
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-
-        when (item.itemId) {
-            R.id.back_action -> {
-                Toast.makeText(context, "Back", Toast.LENGTH_SHORT).show()
-                true
-            }
-            R.id.delete_action -> {
-                Toast.makeText(context, "Delete", Toast.LENGTH_SHORT).show()
-                true
-            }
-            else -> false
-        }
-
-        return super.onOptionsItemSelected(item)
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         val mainActivity = activity as MainActivity
         mainActivity.setLocation(MainActivity.Location.SAVE_EDIT_TRANSLATION)
-
-        originalText = arguments?.getString("original_text")
-        translatedText = arguments?.getString("translated_text")
-
-        if (originalText != null || translatedText != null) {
-            saveMode = true
-            requestQueue = Volley.newRequestQueue(context)
-        }
-
         return inflater.inflate(R.layout.fragment_save_edit_translation, container, false)
     }
 
@@ -164,6 +104,7 @@ class SaveEditTranslationFragment : Fragment() {
         } else if (requireArguments().getString("untranslatedText") != null &&
                 requireArguments().getString("translatedText") != null) {
             fragmentMode = Mode.NEW_MODE
+            requestQueue = Volley.newRequestQueue(context)
             requireArguments().getString("untranslatedText")?.let {
                 requireArguments().getString("translatedText")?.let { it1 -> fillNew(it, it1) }
                 (requireActivity() as AppCompatActivity).supportActionBar!!.title = getString(R.string.title_save_translation)
@@ -176,7 +117,7 @@ class SaveEditTranslationFragment : Fragment() {
 //        toolbar?.setNavigationIcon(R.drawable.ic_launcher_foreground)
 //        toolbar?.setNavigationOnClickListener (Navigation.createNavigateOnClickListener(R.id.action_saveEditTranslationFragment_to_homeFragment))
 
-        view?.findViewById<EditText>(R.id.originalTextEdit).addTextChangedListener(object :
+        view.findViewById<EditText>(R.id.originalTextEdit).addTextChangedListener(object :
             TextWatcher {
             override fun afterTextChanged(s: Editable) {
                 sendRequest(s.toString())
@@ -234,6 +175,8 @@ class SaveEditTranslationFragment : Fragment() {
 
     @SuppressLint("MissingPermission")
     private fun fillNew(originalTextString: String, translatedTextString: String){
+        this.originalText = originalTextString
+        this.translatedText = translatedTextString
         val originalText = requireView().findViewById<EditText>(R.id.originalTextEdit)
         val translatedText = requireView().findViewById<TextView>(R.id.translatedText)
         val location = requireView().findViewById<EditText>(R.id.locationEdit)
@@ -290,13 +233,55 @@ class SaveEditTranslationFragment : Fragment() {
         }
     }
 
+    fun sendRequest(text: String) {
+        val url = "https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&to=en"
+        val request: StringRequest =
+                object : StringRequest(Method.POST, url, Response.Listener<String?> { response ->
+                    var translationResponse : String
+                    if (response != null) {
+                        val parser = JsonParser()
+                        val json = parser.parse(response).asJsonArray
+                        try {
+                            translationResponse =
+                                    json.get(0).asJsonObject.get("translations").asJsonArray.get(
+                                            0
+                                    ).asJsonObject.get("text").asString
+                        } catch (e: Exception) {
+                            translationResponse = "No translation available"
+                        }
+                        view?.findViewById<TextView>(R.id.translatedText)?.text = translationResponse
+                    } else {
+                        translationResponse = "No translation available"
+                    }
+                    view?.findViewById<TextView>(R.id.translatedText)?.setText(translationResponse)
+                }, Response.ErrorListener { buildErrorAlert() }) {
+
+                    @Throws(AuthFailureError::class)
+                    override fun getHeaders(): Map<String, String> {
+                        val params: MutableMap<String, String> = HashMap()
+                        params["Content-Type"] = "application/json; charset=UTF-8"
+                        params["Ocp-Apim-Subscription-Key"] = viewModel.API_KEY
+                        return params
+                    }
+
+                    override fun getBody(): ByteArray {
+                        val jsonObject = JSONObject()
+                        jsonObject.put("Text", text)
+                        val jsonArray = JSONArray()
+                        jsonArray.put(jsonObject)
+                        return jsonArray.toString().toByteArray()
+                    }
+                }
+        requestQueue?.add(request)
+    }
+
     private fun buildErrorAlert() {
         val builder = AlertDialog.Builder(context)
         builder.setMessage(getString(R.string.errorOccurred))
-            .setCancelable(false)
-            .setPositiveButton(R.string.returnWithoutSaving) { _, _ ->
-                activity?.onBackPressed()
-            }
+                .setCancelable(false)
+                .setPositiveButton(R.string.returnWithoutSaving) { _, _ ->
+                    activity?.onBackPressed()
+                }
         val alert = builder.create()
         alert.show()
     }

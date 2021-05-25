@@ -5,7 +5,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -18,7 +17,6 @@ import androidx.navigation.Navigation
 import com.android.volley.AuthFailureError
 import com.android.volley.RequestQueue
 import com.android.volley.Response
-import com.android.volley.VolleyError
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.google.gson.JsonParser
@@ -33,6 +31,11 @@ import java.util.*
 
 
 class ProcessingFragment : Fragment() {
+    private val viewModel: TranslationsViewModel by activityViewModels() {
+        TranslationsViewModelFactory((activity?.application as TBCApplication).repository)
+    }
+
+
     val recogniser = TextRecognition.getClient()
     lateinit var currentAction: TextView
     lateinit var path: String
@@ -77,9 +80,7 @@ class ProcessingFragment : Fragment() {
         if (file.exists()){
             file.delete()
         }
-        if (requestQueue != null) {
-            requestQueue?.cancelAll(viewModel.REQUEST_TAG)
-        }
+        requestQueue.cancelAll(viewModel.REQUEST_TAG)
     }
 
     private fun detectText(imagePath: String) {
@@ -117,7 +118,7 @@ class ProcessingFragment : Fragment() {
             val stringBuilder = StringBuilder()
             for (block in blocks){
                 val string = block.text.replace("\n", " ")
-                stringBuilder.append(string)
+                stringBuilder.append("$string ")
             }
             translateText(stringBuilder.toString())
         }
@@ -125,38 +126,30 @@ class ProcessingFragment : Fragment() {
 
     private fun translateText(text: String){
         currentAction.text = getString(R.string.translating_text)
-            val bundle = bundleOf("untranslatedText" to text, "translatedText" to text)
-            findNavController().navigate(R.id.action_processingFragment_to_navigation_saveEdit, bundle)
-        Log.d("Text", text)
         sendRequest(text)
     }
 
-    fun sendRequest(text: String) {
-        // TODO: Update to work with the language the user selects :)
-        val url = "https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&to=de"
+    private fun sendRequest(text: String) {
+        val url = "https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&to=en"
         val request: StringRequest =
-                object : StringRequest(Method.POST, url, object : Response.Listener<String?> {
-                    override fun onResponse(response: String?) {
+                object : StringRequest(Method.POST, url,
+                    Response.Listener<String?> { response ->
                         if (response != null) {
-                            Log.d("req", "Your Array Response " + response)
+                            Log.d("req", "Your Array Response $response")
 
                             val parser = JsonParser()
                             val json = parser.parse(response).asJsonArray
 
                             Log.d("Text", json.get(0).asJsonObject.get("translations").asJsonArray.get(0).asJsonObject.get("text").asString)
 
-                            val bundle = bundleOf("original_text" to text, "translated_text" to json.get(0).asJsonObject.get("translations").asJsonArray.get(0).asJsonObject.get("text").asString)
-                            Navigation.findNavController(view!!).navigate(R.id.action_processingFragment_to_navigation_saveEdit, bundle)
+                            val bundle = bundleOf("untranslatedText" to text, "translatedText" to json.get(0).asJsonObject.get("translations").asJsonArray.get(0).asJsonObject.get("text").asString)
+                            Navigation.findNavController(requireView()).navigate(R.id.action_processingFragment_to_navigation_saveEdit, bundle)
 
                         } else {
                             Log.d("req", "Response is null")
                         }
-                    }
-                }, object : Response.ErrorListener {
-                    override fun onErrorResponse(error: VolleyError) {
-                        Log.d("req", "error is " + error)
-                    }
-                }) {
+                    },
+                    Response.ErrorListener { error -> Log.d("req", "error is $error") }) {
 
                     @Throws(AuthFailureError::class)
                     override fun getHeaders(): Map<String, String> {
@@ -174,7 +167,7 @@ class ProcessingFragment : Fragment() {
                         return jsonArray.toString().toByteArray()
                     }
                 }
-        requestQueue?.add(request)
+        requestQueue.add(request)
     }
 
 }
