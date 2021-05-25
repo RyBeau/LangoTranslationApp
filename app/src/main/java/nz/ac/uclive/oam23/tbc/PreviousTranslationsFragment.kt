@@ -44,7 +44,7 @@ class PreviousTranslationsFragment : Fragment(), PreviousTranslationAdapter.OnPr
         })
 
         view.findViewById<Button>(R.id.addFillerTranslationButton).setOnClickListener {
-            val translation = Translation("temp original text", "temp translated text", LocalDate.now(), LatLng(0.0, 0.0), "temp note")
+            val translation = Translation("temp original text", "temp translated text", LocalDate.now(), "temp note", LatLng(0.0, 0.0), "Note")
             viewModel.addTranslation(translation)
         }
 

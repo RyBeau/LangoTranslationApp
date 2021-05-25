@@ -9,12 +9,15 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.Text
 import com.google.mlkit.vision.text.TextRecognition
 import java.io.File
 import java.io.IOException
+import java.util.*
 
 
 class ProcessingFragment : Fragment() {
@@ -78,6 +81,7 @@ class ProcessingFragment : Fragment() {
                                 getString(R.string.text_recognition_fail),
                                 Toast.LENGTH_LONG
                         ).show()
+                        Log.d("Test", e.toString())
                         e.printStackTrace()
                         requireActivity().onBackPressed()
                     }
@@ -104,7 +108,8 @@ class ProcessingFragment : Fragment() {
 
     private fun translateText(text: String){
         currentAction.text = getString(R.string.translating_text)
-        Log.d("Text", text)
+            val bundle = bundleOf("untranslatedText" to text, "translatedText" to text)
+            findNavController().navigate(R.id.action_processingFragment_to_navigation_saveEdit, bundle)
     }
 
 }
