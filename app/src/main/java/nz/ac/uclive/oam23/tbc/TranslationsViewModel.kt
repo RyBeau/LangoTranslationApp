@@ -13,9 +13,6 @@ class TranslationsViewModel(private val translationRepository: TranslationReposi
 
     val translationsList: LiveData<List<Translation>> = translationRepository.translations.asLiveData()
 
-    val REQUEST_TAG = "translation"
-    val API_KEY = "d4c58350bbc547b8a7d98270627274e5"
-
     // TODO: Once using navigation, switch to passing translation as a parameter on navigation to other fragments
     private var _selectedIndex = MutableLiveData(-1)
     val selectedIndex: LiveData<Int>

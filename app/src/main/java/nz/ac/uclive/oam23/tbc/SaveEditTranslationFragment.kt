@@ -138,7 +138,7 @@ class SaveEditTranslationFragment : Fragment() {
     override fun onStop() {
         super.onStop()
         if (requestQueue != null) {
-            requestQueue?.cancelAll(viewModel.REQUEST_TAG)
+            requestQueue?.cancelAll(getString(R.string.TRANSLATION_API_REQUEST_TAG))
         }
     }
 
@@ -260,7 +260,7 @@ class SaveEditTranslationFragment : Fragment() {
                     override fun getHeaders(): Map<String, String> {
                         val params: MutableMap<String, String> = HashMap()
                         params["Content-Type"] = "application/json; charset=UTF-8"
-                        params["Ocp-Apim-Subscription-Key"] = viewModel.API_KEY
+                        params["Ocp-Apim-Subscription-Key"] = getString(R.string.TRANSLATION_API_KEY)
                         return params
                     }
 

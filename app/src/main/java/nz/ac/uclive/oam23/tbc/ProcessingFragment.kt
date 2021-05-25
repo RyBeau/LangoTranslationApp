@@ -11,7 +11,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
 import com.android.volley.AuthFailureError
@@ -80,7 +79,7 @@ class ProcessingFragment : Fragment() {
         if (file.exists()){
             file.delete()
         }
-        requestQueue.cancelAll(viewModel.REQUEST_TAG)
+        requestQueue.cancelAll(getString(R.string.TRANSLATION_API_REQUEST_TAG))
     }
 
     private fun detectText(imagePath: String) {
@@ -155,7 +154,7 @@ class ProcessingFragment : Fragment() {
                     override fun getHeaders(): Map<String, String> {
                         val params: MutableMap<String, String> = HashMap()
                         params["Content-Type"] = "application/json; charset=UTF-8"
-                        params["Ocp-Apim-Subscription-Key"] = viewModel.API_KEY
+                        params["Ocp-Apim-Subscription-Key"] = getString(R.string.TRANSLATION_API_KEY)
                         return params
                     }
 
