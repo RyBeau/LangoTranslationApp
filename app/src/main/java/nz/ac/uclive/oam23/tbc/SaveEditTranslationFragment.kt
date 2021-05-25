@@ -137,7 +137,6 @@ class SaveEditTranslationFragment : Fragment() {
             errorToast()
             requireActivity().onBackPressed()
         }
-        Log.d("Test", requireActivity().title.toString())
         setButtonCallbacks(view)
 //        toolbar?.setNavigationIcon(R.drawable.ic_launcher_foreground)
 //        toolbar?.setNavigationOnClickListener (Navigation.createNavigateOnClickListener(R.id.action_saveEditTranslationFragment_to_homeFragment))
@@ -145,7 +144,6 @@ class SaveEditTranslationFragment : Fragment() {
 
     private fun setButtonCallbacks(view: View){
         view.findViewById<Button>(R.id.cancelEditTranslationButton).setOnClickListener {
-            Log.d("Test", requireActivity().title.toString())
             requireActivity().onBackPressed()
         }
 
