@@ -34,10 +34,13 @@ class ViewTranslationFragment : Fragment() {
     ): View? {
         val mainActivity = activity as MainActivity
         mainActivity.setLocation(MainActivity.Location.VIEW_TRANSLATION)
-        var key: Long = 0
-        if (requireArguments().getString("translationKey") != null){
-            key = requireArguments().getLong("translationKey")
-        } else {
+        return inflater.inflate(R.layout.fragment_view_translation, container, false)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        val key = requireArguments().getLong("translationKey")
+        if (key == (-1).toLong()){
             Toast.makeText(
                     requireActivity(),
                     getString(R.string.translation_not_found),
@@ -49,12 +52,6 @@ class ViewTranslationFragment : Fragment() {
             translation = dbTranslation
             fillTextViews()
         })
-        return inflater.inflate(R.layout.fragment_view_translation, container, false)
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
         view.findViewById<Button>(R.id.editTranslationButton).setOnClickListener {
             val bundle = bundleOf("translationKey" to translation.id)
             view.findNavController().navigate(R.id.action_navigation_viewTranslation_to_navigation_saveEdit, bundle)
@@ -70,7 +67,7 @@ class ViewTranslationFragment : Fragment() {
 
         originalText?.text = translation.originalText
         translatedText?.text = translation.translatedText
-        location?.text = translation.locationString.toString()
+        location?.text = translation.locationString
         note?.text = translation.note
         date?.text = translation.date.toString()
     }

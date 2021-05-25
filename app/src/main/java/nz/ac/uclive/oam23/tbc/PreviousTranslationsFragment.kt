@@ -1,6 +1,7 @@
 package nz.ac.uclive.oam23.tbc
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -11,6 +12,7 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.maps.model.LatLng
@@ -35,13 +37,15 @@ class PreviousTranslationsFragment : Fragment(), PreviousTranslationAdapter.OnPr
         val view =  inflater.inflate(R.layout.fragment_previous_translations, container, false)
         val translationAdapter = PreviousTranslationAdapter(listOf(), this)
         val recyclerView = view.findViewById<RecyclerView>(R.id.previousTranslationsViewer)
+
+        viewModel.translationsList.observe(viewLifecycleOwner, { newTranslations ->
+            translationAdapter.setData(newTranslations)
+        })
+
         recyclerView.apply {
             adapter = translationAdapter
             layoutManager = LinearLayoutManager(activity)
         }
-        viewModel.translationsList.observe(viewLifecycleOwner, { newTranslations ->
-            translationAdapter.setData(newTranslations)
-        })
 
         view.findViewById<Button>(R.id.addFillerTranslationButton).setOnClickListener {
             val translation = Translation("temp original text", "temp translated text", LocalDate.now(), "temp note", LatLng(0.0, 0.0), "Note")
@@ -54,6 +58,6 @@ class PreviousTranslationsFragment : Fragment(), PreviousTranslationAdapter.OnPr
     override fun onTranslationClick(position: Int) {
         viewModel.setSelectedIndex(position)
         val bundle = bundleOf("translationKey" to (viewModel.translationsList.value!![position].id))
-        requireView().findNavController().navigate(R.id.action_navigation_previous_to_navigation_viewTranslation, bundle)
+        findNavController().navigate(R.id.action_navigation_previous_to_navigation_viewTranslation, bundle)
     }
 }
