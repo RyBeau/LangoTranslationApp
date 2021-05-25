@@ -17,7 +17,7 @@ import androidx.navigation.findNavController
 /**
  * Fragment for viewing saved translations
  */
-class ViewTranslationFragment : Fragment() {
+class ViewTranslationFragment : NoNavFragment() {
 
     private lateinit var translation: Translation
 

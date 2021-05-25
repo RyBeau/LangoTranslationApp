@@ -1,39 +1,42 @@
 package nz.ac.uclive.oam23.tbc
 
 import android.annotation.SuppressLint
-import android.location.Geocoder
 import android.app.AlertDialog
+import android.location.Geocoder
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.View
+import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
-import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.maps.model.LatLng
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
-import java.util.*
 import com.android.volley.AuthFailureError
 import com.android.volley.RequestQueue
 import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.internal.NavigationMenu
+import com.google.android.material.navigation.NavigationView
 import com.google.gson.JsonParser
 import org.json.JSONArray
 import org.json.JSONObject
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
+import java.util.*
 
 
-class SaveEditTranslationFragment : Fragment() {
+class SaveEditTranslationFragment : NoNavFragment() {
 
     enum class Mode {
         EDIT_MODE,
@@ -73,10 +76,18 @@ class SaveEditTranslationFragment : Fragment() {
         super.onViewStateRestored(savedInstanceState)
 
         if (savedInstanceState?.containsKey("editedNote") == true){
-            requireView().findViewById<EditText>(R.id.noteEdit).setText(savedInstanceState.getString("editedNote"))
+            requireView().findViewById<EditText>(R.id.noteEdit).setText(
+                savedInstanceState.getString(
+                    "editedNote"
+                )
+            )
         }
         if (savedInstanceState?.containsKey("editedLocation") == true){
-            requireView().findViewById<EditText>(R.id.locationEdit).setText(savedInstanceState.getString("editedLocation"))
+            requireView().findViewById<EditText>(R.id.locationEdit).setText(
+                savedInstanceState.getString(
+                    "editedLocation"
+                )
+            )
         }
     }
 
@@ -135,7 +146,14 @@ class SaveEditTranslationFragment : Fragment() {
                 val locationString = view.findViewById<EditText>(R.id.locationEdit).text.toString()
                 val note = view.findViewById<EditText>(R.id.noteEdit).text.toString()
 
-                val translation = Translation(originalText, translatedText, LocalDate.now(), locationString, latLng, note)
+                val translation = Translation(
+                    originalText,
+                    translatedText,
+                    LocalDate.now(),
+                    locationString,
+                    latLng,
+                    note
+                )
                 viewModel.addTranslation(translation)
             }
         } else {
@@ -183,9 +201,9 @@ class SaveEditTranslationFragment : Fragment() {
 
     private fun errorToast(){
         Toast.makeText(
-                requireActivity(),
-                getString(R.string.error),
-                Toast.LENGTH_LONG
+            requireActivity(),
+            getString(R.string.error),
+            Toast.LENGTH_LONG
         ).show()
     }
 
@@ -202,7 +220,11 @@ class SaveEditTranslationFragment : Fragment() {
             if(location.text.isEmpty()) {
                 location.setText(existingTranslation!!.locationString)
             }
-            date.text = existingTranslation!!.date.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT))
+            date.text = existingTranslation!!.date.format(
+                DateTimeFormatter.ofLocalizedDate(
+                    FormatStyle.SHORT
+                )
+            )
             if(note.text.isEmpty()){
                 note.setText(existingTranslation!!.note)
             }
@@ -218,19 +240,20 @@ class SaveEditTranslationFragment : Fragment() {
         val url = "https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&to=en"
         val request: StringRequest =
                 object : StringRequest(Method.POST, url, Response.Listener<String?> { response ->
-                    var translationResponse : String
+                    var translationResponse: String
                     if (response != null) {
                         val parser = JsonParser()
                         val json = parser.parse(response).asJsonArray
                         try {
                             translationResponse =
-                                    json.get(0).asJsonObject.get("translations").asJsonArray.get(
-                                            0
-                                    ).asJsonObject.get("text").asString
+                                json.get(0).asJsonObject.get("translations").asJsonArray.get(
+                                    0
+                                ).asJsonObject.get("text").asString
                         } catch (e: Exception) {
                             translationResponse = "No translation available"
                         }
-                        view?.findViewById<TextView>(R.id.translatedText)?.text = translationResponse
+                        view?.findViewById<TextView>(R.id.translatedText)?.text =
+                            translationResponse
                     } else {
                         translationResponse = "No translation available"
                     }

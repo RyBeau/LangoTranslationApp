@@ -20,7 +20,7 @@ import java.time.LocalDate
 /**
  * Fragment for viewing previous translations
  */
-class PreviousTranslationsFragment : Fragment(), PreviousTranslationAdapter.OnPreviousTranslationListener {
+class PreviousTranslationsFragment : NavFragment(), PreviousTranslationAdapter.OnPreviousTranslationListener {
 
     private val viewModel: TranslationsViewModel by activityViewModels() {
         TranslationsViewModelFactory((activity?.application as TBCApplication).repository)
