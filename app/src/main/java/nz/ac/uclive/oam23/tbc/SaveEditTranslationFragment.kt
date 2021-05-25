@@ -114,25 +114,6 @@ class SaveEditTranslationFragment : Fragment() {
             requireActivity().onBackPressed()
         }
         setButtonCallbacks(view)
-//        toolbar?.setNavigationIcon(R.drawable.ic_launcher_foreground)
-//        toolbar?.setNavigationOnClickListener (Navigation.createNavigateOnClickListener(R.id.action_saveEditTranslationFragment_to_homeFragment))
-
-        view.findViewById<EditText>(R.id.originalTextEdit).addTextChangedListener(object :
-            TextWatcher {
-            override fun afterTextChanged(s: Editable) {
-                sendRequest(s.toString())
-            }
-
-            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
-        })
-
-//        val originalTextEditText = view?.findViewById<EditText>(R.id.originalTextEdit)
-//        originalTextEditText.setOnFocusChangeListener { view, hasFocus ->
-//            if (!hasFocus) {
-//                sendRequest(originalTextEditText.text.toString())
-//            }
-//        }
     }
 
     override fun onStop() {
@@ -194,7 +175,7 @@ class SaveEditTranslationFragment : Fragment() {
         date.text = LocalDate.now().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT))
         originalText.setText(originalTextString)
         originalText.doAfterTextChanged {
-            //TODO Retranslated and update
+            sendRequest(it.toString())
         }
         translatedText.text = translatedTextString
 
