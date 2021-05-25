@@ -12,6 +12,9 @@
     <string name="title_home">Home</string>
     <string name="title_preferences">Preferences</string>
     <string name="title_previous_translations">Previous Translations</string>
+    <string name="title_view_translation">View Translations</string>
+    <string name="title_save_translation">Save Translation</string>
+    <string name="title_edit_translation">Edit Translation</string>
     <string name="nav_previous_translations">Previous</string>
     <string name="date_desc">Date ▼</string>
     <string name="date_asc">Date ▲</string>
@@ -34,8 +37,11 @@
     <string name="no_text_found">No Text Found</string>
     <string name="file_error">Error occurred while creating the file.</string>
     <string name="no_image">No Image Provided</string>
+    <string name="translation_not_found">Translation Not Found</string>
+    <string name="error">An Error Has Occurred</string>
     <string name="errorOccurred">An error has occurred</string>
     <string name="returnWithoutSaving">Return without saving</string>
+    <string name="delete">Delete</string>
     <!-- Preferences -->
     <string name="feedback_header">Feedback</string>
     <string name="feedback_description">Report technical issues or suggest new features</string>

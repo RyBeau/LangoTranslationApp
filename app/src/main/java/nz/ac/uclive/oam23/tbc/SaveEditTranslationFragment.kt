@@ -1,40 +1,56 @@
 package nz.ac.uclive.oam23.tbc
 
+import android.annotation.SuppressLint
 import android.app.AlertDialog
+import android.location.Geocoder
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
-import android.view.*
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.View
+import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
+import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.viewModelScope
-import androidx.navigation.Navigation
-import androidx.navigation.findNavController
 import com.android.volley.AuthFailureError
 import com.android.volley.RequestQueue
 import com.android.volley.Response
-import com.android.volley.VolleyError
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
+import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.internal.NavigationMenu
+import com.google.android.material.navigation.NavigationView
 import com.google.gson.JsonParser
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.json.JSONObject
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 import java.util.*
 
 
-class SaveEditTranslationFragment : Fragment() {
+class SaveEditTranslationFragment : NoNavFragment() {
+
+    enum class Mode {
+        EDIT_MODE,
+        NEW_MODE
+    }
 
     private val viewModel: TranslationsViewModel by activityViewModels() {
         TranslationsViewModelFactory((activity?.application as TBCApplication).repository)
     }
+
+    private lateinit var fragmentMode: Mode
+    private lateinit var latLng: LatLng
+    private var existingTranslation: Translation? = null
+
 
     private var saveMode = false
     private var translationId: Long? = null
@@ -42,194 +58,189 @@ class SaveEditTranslationFragment : Fragment() {
     private var translatedText: String? = null
     private var requestQueue: RequestQueue? = null
 
-//    var toolbar: Toolbar? = null
-//    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-//        toolbar = view?.findViewById<Toolbar>(R.id.toolbar)
-//        toolbar?.inflateMenu(R.menu.edit_save_menu)
-//
-//        toolbar?.setOnMenuItemClickListener {
-//            when (it.itemId) {
-//                R.id.back_action -> {
-//                    Toast.makeText(context, "Back", Toast.LENGTH_SHORT).show()
-//                    true
-//                }
-//                R.id.delete_action -> {
-//                    Toast.makeText(context, "Delete", Toast.LENGTH_SHORT).show()
-//                    viewModel.deleteTranslation(viewModel.selectedIndex.value!!)
-//                    true
-//                }
-//                else -> false
-//            }
-//        }
-//    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-
-        when (item.itemId) {
-            R.id.back_action -> {
-                Toast.makeText(context, "Back", Toast.LENGTH_SHORT).show()
-                true
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        if (fragmentMode == Mode.EDIT_MODE) {
+            val note = requireView().findViewById<EditText>(R.id.noteEdit).text.toString()
+            val location = requireView().findViewById<EditText>(R.id.locationEdit).text.toString()
+            if (existingTranslation?.note != note){
+                outState.putString("editedNote", note)
             }
-            R.id.delete_action -> {
-                Toast.makeText(context, "Delete", Toast.LENGTH_SHORT).show()
-                true
+            if (existingTranslation?.locationString != location){
+                outState.putString("editedLocation", location)
             }
-            else -> false
         }
+    }
 
-        return super.onOptionsItemSelected(item)
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        super.onViewStateRestored(savedInstanceState)
+
+        if (savedInstanceState?.containsKey("editedNote") == true){
+            requireView().findViewById<EditText>(R.id.noteEdit).setText(
+                savedInstanceState.getString(
+                    "editedNote"
+                )
+            )
+        }
+        if (savedInstanceState?.containsKey("editedLocation") == true){
+            requireView().findViewById<EditText>(R.id.locationEdit).setText(
+                savedInstanceState.getString(
+                    "editedLocation"
+                )
+            )
+        }
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
-        bundle: Bundle?
+        savedInstanceState: Bundle?
     ): View? {
         val mainActivity = activity as MainActivity
         mainActivity.setLocation(MainActivity.Location.SAVE_EDIT_TRANSLATION)
-
-        originalText = arguments?.getString("original_text")
-        translatedText = arguments?.getString("translated_text")
-
-        if (originalText != null || translatedText != null) {
-            saveMode = true
-            requestQueue = Volley.newRequestQueue(context)
-        }
-
         return inflater.inflate(R.layout.fragment_save_edit_translation, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        autoFill()
-
-        val jsonObject = JSONObject()
-        jsonObject.put("Text", "Hello, what is your name?")
-        val jsonArray = JSONArray()
-        jsonArray.put(jsonObject)
-
-        if (saveMode) {
-            view.findViewById<Button>(R.id.saveEditTranslationButton).setOnClickListener {
-                val original_text =
-                    view?.findViewById<EditText>(R.id.originalTextEdit).text.toString()
-                val translated_text =
-                    view?.findViewById<TextView>(R.id.translatedText).text.toString()
-                val date = view?.findViewById<TextView>(R.id.date).text.toString()
-//                val location = view?.findViewById<EditText>(R.id.locationEdit).text.toString()
-                val note = view?.findViewById<EditText>(R.id.noteEdit).text.toString()
-
-                val location = LatLng(0.0, 0.0)     // TODO implement actual location storing
-
-                val tempTranslation = Translation(
-                    original_text, translated_text, LocalDate.parse(
-                        date
-                    ), location, note
-                )
-                viewModel.addTranslation(tempTranslation)
-                Toast.makeText(context, "Translation saved sucessfully", Toast.LENGTH_SHORT)
+        val key: Long
+        if (requireArguments().getLong("translationKey") != (-1).toLong()) {
+            key = requireArguments().getLong("translationKey")
+            fragmentMode = Mode.EDIT_MODE
+            (requireActivity() as AppCompatActivity).supportActionBar!!.title = getString(R.string.title_edit_translation)
+            viewModel.getTranslation(key).observe(viewLifecycleOwner, { dbTranslation ->
+                existingTranslation = dbTranslation
+                fillFromExisting()
+            })
+        } else if (requireArguments().getString("untranslatedText") != null &&
+                requireArguments().getString("translatedText") != null) {
+            fragmentMode = Mode.NEW_MODE
+            requestQueue = Volley.newRequestQueue(context)
+            requireArguments().getString("untranslatedText")?.let {
+                requireArguments().getString("translatedText")?.let { it1 -> fillNew(it, it1) }
+                (requireActivity() as AppCompatActivity).supportActionBar!!.title = getString(R.string.title_save_translation)
             }
         } else {
-            view.findViewById<Button>(R.id.saveEditTranslationButton).setOnClickListener {
-                val original_text =
-                    view?.findViewById<EditText>(R.id.originalTextEdit).text.toString()
-                val translated_text =
-                    view?.findViewById<TextView>(R.id.translatedText).text.toString()
-//                val location = view?.findViewById<EditText>(R.id.locationEdit).text.toString()
-                val note = view?.findViewById<EditText>(R.id.noteEdit).text.toString()
-                val date = view?.findViewById<TextView>(R.id.date).text.toString()
-
-                val location = LatLng(0.0, 0.0)
-
-                val tempTranslation = Translation(
-                    original_text, translated_text, LocalDate.parse(
-                        date
-                    ), location, note
-                )
-                viewModel.editTranslation(tempTranslation)
-            }
+            errorToast()
+            requireActivity().onBackPressed()
         }
-
-        view?.findViewById<EditText>(R.id.originalTextEdit).addTextChangedListener(object :
-            TextWatcher {
-            override fun afterTextChanged(s: Editable) {
-                sendRequest(s.toString())
-            }
-
-            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
-        })
-
-//        val originalTextEditText = view?.findViewById<EditText>(R.id.originalTextEdit)
-//        originalTextEditText.setOnFocusChangeListener { view, hasFocus ->
-//            if (!hasFocus) {
-//                sendRequest(originalTextEditText.text.toString())
-//            }
-//        }
+        setButtonCallbacks(view)
     }
 
     override fun onStop() {
         super.onStop()
         if (requestQueue != null) {
-            requestQueue?.cancelAll(viewModel.REQUEST_TAG)
+            requestQueue?.cancelAll(getString(R.string.TRANSLATION_API_REQUEST_TAG))
         }
     }
 
-    fun autoFill() {
-        val original_text = view?.findViewById<EditText>(R.id.originalTextEdit)
-        val translated_text = view?.findViewById<TextView>(R.id.translatedText)
-        val location = view?.findViewById<EditText>(R.id.locationEdit)
-        val note = view?.findViewById<EditText>(R.id.noteEdit)
-        val date = view?.findViewById<TextView>(R.id.date)
+    private fun setButtonCallbacks(view: View){
+        view.findViewById<Button>(R.id.cancelEditTranslationButton).setOnClickListener {
+            requireActivity().onBackPressed()
+        }
 
-        if (saveMode) {
-            date?.text = LocalDate.now().toString()
-            original_text?.setText(originalText)
-            translated_text?.text = translatedText
-            location?.setText("temp location")
-            note?.setText("")
+        if (fragmentMode == Mode.NEW_MODE) {
+            view.findViewById<Button>(R.id.saveEditTranslationButton).setOnClickListener {
+                val originalText = view.findViewById<EditText>(R.id.originalTextEdit).text.toString()
+                val translatedText = view.findViewById<TextView>(R.id.translatedText).text.toString()
+                val locationString = view.findViewById<EditText>(R.id.locationEdit).text.toString()
+                val note = view.findViewById<EditText>(R.id.noteEdit).text.toString()
+
+                val translation = Translation(
+                    originalText,
+                    translatedText,
+                    LocalDate.now(),
+                    locationString,
+                    latLng,
+                    note
+                )
+                viewModel.addTranslation(translation)
+            }
         } else {
-            original_text?.isEnabled = false
-            if (translationId != null) {
-                viewModel.viewModelScope.launch {
-                    val translation = viewModel.getTranslation(translationId!!)
-                    fillTranslation(translation)
-                }
-            } else {
-                fillTranslation(null)
+            view.findViewById<Button>(R.id.saveEditTranslationButton).setOnClickListener {
+                updateExistingTranslation(requireView())
+                existingTranslation?.let { it1 -> viewModel.editTranslation(it1) }
+                (requireActivity() as MainActivity).translationSaved()
             }
         }
     }
 
-    private fun fillTranslation(translation: Translation?) {
-        val original_text = view?.findViewById<EditText>(R.id.originalTextEdit)
-        val translated_text = view?.findViewById<TextView>(R.id.translatedText)
-        val location = view?.findViewById<EditText>(R.id.locationEdit)
-        val note = view?.findViewById<EditText>(R.id.noteEdit)
-        val date = view?.findViewById<TextView>(R.id.date)
+    private fun updateExistingTranslation(view: View){
+        val locationString = view.findViewById<EditText>(R.id.locationEdit).text.toString()
+        val note = view.findViewById<EditText>(R.id.noteEdit).text.toString()
+        existingTranslation?.locationString = locationString
+        existingTranslation?.note = note
+    }
 
-        if (translation != null) {
-            date?.text = translation.date.toString()
-            original_text?.setText(translation.originalText)
-            translated_text?.text = translation.translatedText
-            location?.setText(translation.location.toString())
-            note?.setText(translation.note)
+    @SuppressLint("MissingPermission")
+    private fun fillNew(originalTextString: String, translatedTextString: String){
+        this.originalText = originalTextString
+        this.translatedText = translatedTextString
+        val originalText = requireView().findViewById<EditText>(R.id.originalTextEdit)
+        val translatedText = requireView().findViewById<TextView>(R.id.translatedText)
+        val location = requireView().findViewById<EditText>(R.id.locationEdit)
+        val date = requireView().findViewById<TextView>(R.id.date)
+
+        val locationClient = LocationServices.getFusedLocationProviderClient(requireContext())
+        locationClient.lastLocation.addOnSuccessListener {
+            latLng = LatLng(it.latitude, it.longitude)
+            val geocoder = Geocoder(requireContext(), Locale.getDefault())
+            val addressList = geocoder.getFromLocation(it.latitude, it.longitude, 1)
+            val locationString = "${addressList[0].getAddressLine(0)}, ${addressList[0].locality}, " +
+                    "${addressList[0].postalCode}, ${addressList[0].postalCode}"
+            location.setText(locationString)
+        }
+        date.text = LocalDate.now().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT))
+        originalText.setText(originalTextString)
+        originalText.doAfterTextChanged {
+            sendRequest(it.toString())
+        }
+        translatedText.text = translatedTextString
+
+    }
+
+    private fun errorToast(){
+        Toast.makeText(
+            requireActivity(),
+            getString(R.string.error),
+            Toast.LENGTH_LONG
+        ).show()
+    }
+
+    private fun fillFromExisting() {
+        val originalText = requireView().findViewById<EditText>(R.id.originalTextEdit)
+        val translatedText = requireView().findViewById<TextView>(R.id.translatedText)
+        val location = requireView().findViewById<EditText>(R.id.locationEdit)
+        val date = requireView().findViewById<TextView>(R.id.date)
+        val note = requireView().findViewById<EditText>(R.id.noteEdit)
+
+        if (existingTranslation != null){
+            originalText.setText(existingTranslation!!.originalText)
+            translatedText.text = existingTranslation!!.translatedText
+            if(location.text.isEmpty()) {
+                location.setText(existingTranslation!!.locationString)
+            }
+            date.text = existingTranslation!!.date.format(
+                DateTimeFormatter.ofLocalizedDate(
+                    FormatStyle.SHORT
+                )
+            )
+            if(note.text.isEmpty()){
+                note.setText(existingTranslation!!.note)
+            }
+
+            originalText.isEnabled = false
         } else {
-            // TODO: make an error message...
-            date?.text = "1/11/1111"
-            original_text?.setText("これをわざわざ翻訳しないでください")
-            translated_text?.text = "Do not bother translating this"
-            location?.setText("1 One Street, One Suburb, One City, 1111,  One Country")
-            note?.setText("This is a text note to test the note.")
+            errorToast()
+            requireActivity().onBackPressed()
         }
     }
 
     fun sendRequest(text: String) {
-        // TODO: Update to work with the language the user selects :)
-        val url = "https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&to=de"
+        val url = "https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&to=en"
         val request: StringRequest =
-            object : StringRequest(Method.POST, url, object : Response.Listener<String?> {
-                override fun onResponse(response: String?) {
-                    var translationResponse = ""
+                object : StringRequest(Method.POST, url, Response.Listener<String?> { response ->
+                    var translationResponse: String
                     if (response != null) {
                         val parser = JsonParser()
                         val json = parser.parse(response).asJsonArray
@@ -241,46 +252,40 @@ class SaveEditTranslationFragment : Fragment() {
                         } catch (e: Exception) {
                             translationResponse = "No translation available"
                         }
-                        view?.findViewById<TextView>(R.id.translatedText)?.setText(
+                        view?.findViewById<TextView>(R.id.translatedText)?.text =
                             translationResponse
-                        )
                     } else {
                         translationResponse = "No translation available"
                     }
                     view?.findViewById<TextView>(R.id.translatedText)?.setText(translationResponse)
-                }
-            }, object : Response.ErrorListener {
-                override fun onErrorResponse(error: VolleyError) {
-                    buildErrorAlert()
-                }
-            }) {
+                }, Response.ErrorListener { buildErrorAlert() }) {
 
-                @Throws(AuthFailureError::class)
-                override fun getHeaders(): Map<String, String> {
-                    val params: MutableMap<String, String> = HashMap()
-                    params["Content-Type"] = "application/json; charset=UTF-8"
-                    params["Ocp-Apim-Subscription-Key"] = viewModel.API_KEY
-                    return params
-                }
+                    @Throws(AuthFailureError::class)
+                    override fun getHeaders(): Map<String, String> {
+                        val params: MutableMap<String, String> = HashMap()
+                        params["Content-Type"] = "application/json; charset=UTF-8"
+                        params["Ocp-Apim-Subscription-Key"] = getString(R.string.TRANSLATION_API_KEY)
+                        return params
+                    }
 
-                override fun getBody(): ByteArray {
-                    val jsonObject = JSONObject()
-                    jsonObject.put("Text", text)
-                    val jsonArray = JSONArray()
-                    jsonArray.put(jsonObject)
-                    return jsonArray.toString().toByteArray()
+                    override fun getBody(): ByteArray {
+                        val jsonObject = JSONObject()
+                        jsonObject.put("Text", text)
+                        val jsonArray = JSONArray()
+                        jsonArray.put(jsonObject)
+                        return jsonArray.toString().toByteArray()
+                    }
                 }
-            }
         requestQueue?.add(request)
     }
 
     private fun buildErrorAlert() {
         val builder = AlertDialog.Builder(context)
         builder.setMessage(getString(R.string.errorOccurred))
-            .setCancelable(false)
-            .setPositiveButton(R.string.returnWithoutSaving) { _, _ ->
-                activity?.onBackPressed()
-            }
+                .setCancelable(false)
+                .setPositiveButton(R.string.returnWithoutSaving) { _, _ ->
+                    activity?.onBackPressed()
+                }
         val alert = builder.create()
         alert.show()
     }

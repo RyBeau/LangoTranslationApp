@@ -7,14 +7,19 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
+import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
+import androidx.navigation.findNavController
 
 
 /**
  * Fragment for viewing saved translations
  */
-class ViewTranslationFragment : Fragment() {
+class ViewTranslationFragment : NoNavFragment() {
+
+    private lateinit var translation: Translation
 
     private val viewModel: TranslationsViewModel by activityViewModels() {
         TranslationsViewModelFactory((activity?.application as TBCApplication).repository)
@@ -29,51 +34,41 @@ class ViewTranslationFragment : Fragment() {
     ): View? {
         val mainActivity = activity as MainActivity
         mainActivity.setLocation(MainActivity.Location.VIEW_TRANSLATION)
-
-        val view = inflater.inflate(R.layout.fragment_view_translation, container, false)
-
-        view.findViewById<Button>(R.id.editTranslationButton).setOnClickListener {
-            Navigation.findNavController(view!!).navigate(R.id.action_navigation_viewTranslation_to_navigation_saveEdit)
-        }
-
-        return view
+        return inflater.inflate(R.layout.fragment_view_translation, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        tempFill()
+        val key = requireArguments().getLong("translationKey")
+        if (key == (-1).toLong()){
+            Toast.makeText(
+                    requireActivity(),
+                    getString(R.string.translation_not_found),
+                    Toast.LENGTH_LONG
+            ).show()
+            requireActivity().onBackPressed()
+        }
+        viewModel.getTranslation(key).observe(viewLifecycleOwner, { dbTranslation ->
+            translation = dbTranslation
+            fillTextViews()
+        })
+        view.findViewById<Button>(R.id.editTranslationButton).setOnClickListener {
+            val bundle = bundleOf("translationKey" to translation.id)
+            view.findNavController().navigate(R.id.action_navigation_viewTranslation_to_navigation_saveEdit, bundle)
+        }
     }
 
-    fun tempFill() {
-        val original_text = view?.findViewById<TextView>(R.id.originalTextEdit)
-        val translated_text = view?.findViewById<TextView>(R.id.translatedText)
-        val location = view?.findViewById<TextView>(R.id.locationEdit)
-        val note = view?.findViewById<TextView>(R.id.noteEdit)
+    private fun fillTextViews() {
+        val originalText = view?.findViewById<TextView>(R.id.originalText)
+        val translatedText = view?.findViewById<TextView>(R.id.translatedText)
+        val location = view?.findViewById<TextView>(R.id.locationText)
+        val note = view?.findViewById<TextView>(R.id.noteText)
         val date = view?.findViewById<TextView>(R.id.date)
 
-        if (viewModel.selectedIndex.value != null && viewModel.selectedIndex.value != -1) {
-            val translation = viewModel.translationsList.value?.get(viewModel.selectedIndex.value!!)
-            if (translation != null) {
-                date?.text = translation.date.toString()
-                original_text?.text = translation.originalText
-                translated_text?.text = translation.translatedText
-                location?.text = translation.location.toString()
-                note?.text = translation.note
-            } else {
-                // TODO: make an error message...
-                date?.text = "1/11/1111"
-                original_text?.text = "これをわざわざ翻訳しないでください"
-                translated_text?.text = "Do not bother translating this"
-                location?.text = "1 One Street, One Suburb, One City, 1111,  One Country"
-                note?.text = "This is a text note to test the note."
-            }
-        } else {
-            // TODO: make an error message...
-            date?.text = "1/11/1111"
-            original_text?.text = "これをわざわざ翻訳しないでください"
-            translated_text?.text = "Do not bother translating this"
-            location?.text = "1 One Street, One Suburb, One City, 1111,  One Country"
-            note?.text = "This is a text note to test the note."
-        }
+        originalText?.text = translation.originalText
+        translatedText?.text = translation.translatedText
+        location?.text = translation.locationString
+        note?.text = translation.note
+        date?.text = translation.date.toString()
     }
 }
