@@ -39,6 +39,7 @@
         <action
             android:id="@+id/action_processingFragment_to_navigation_saveEdit"
             app:destination="@id/navigation_saveEdit"
+            app:popUpTo="@id/processingFragment"
             app:popUpToInclusive="true" />
     </fragment>
     <fragment
