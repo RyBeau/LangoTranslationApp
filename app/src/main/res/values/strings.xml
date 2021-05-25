@@ -39,4 +39,17 @@
     <string name="no_image">No Image Provided</string>
     <string name="translation_not_found">Translation Not Found</string>
     <string name="error">An Error Has Occurred</string>
+    <string name="errorOccurred">An error has occurred</string>
+    <string name="returnWithoutSaving">Return without saving</string>
+    <!-- Preferences -->
+    <string name="feedback_header">Feedback</string>
+    <string name="feedback_description">Report technical issues or suggest new features</string>
+    <string name="feedback_title">Report technical issues or suggest new features</string>
+
+    <string name="notifications_header">Notifications</string>
+    <string name="notifications_title">Enable Range Notifications</string>
+
+    <string name="theme_header">Themes</string>
+    <string name="theme_title">Select a theme</string>
+
 </resources>

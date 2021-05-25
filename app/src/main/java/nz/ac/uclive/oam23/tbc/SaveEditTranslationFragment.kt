@@ -2,10 +2,15 @@ package nz.ac.uclive.oam23.tbc
 
 import android.annotation.SuppressLint
 import android.location.Geocoder
+import android.app.AlertDialog
 import android.os.Bundle
-import android.util.Log
-import android.util.Log.d
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.*
+import android.widget.Button
+import android.widget.EditText
+import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -22,6 +27,24 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.util.*
+import androidx.lifecycle.viewModelScope
+import androidx.navigation.Navigation
+import androidx.navigation.findNavController
+import com.android.volley.AuthFailureError
+import com.android.volley.RequestQueue
+import com.android.volley.Response
+import com.android.volley.VolleyError
+import com.android.volley.toolbox.StringRequest
+import com.android.volley.toolbox.Volley
+import com.google.android.gms.maps.model.LatLng
+import com.google.gson.JsonParser
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import org.json.JSONArray
+import org.json.JSONObject
+import java.time.LocalDate
+import java.util.*
+
 
 class SaveEditTranslationFragment : Fragment() {
 
@@ -39,6 +62,11 @@ class SaveEditTranslationFragment : Fragment() {
     private var existingTranslation: Translation? = null
 
 
+    private var saveMode = false
+    private var translationId: Long? = null
+    private var originalText: String? = null
+    private var translatedText: String? = null
+    private var requestQueue: RequestQueue? = null
 
 //    var toolbar: Toolbar? = null
 //    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -101,8 +129,6 @@ class SaveEditTranslationFragment : Fragment() {
         }
 
         return super.onOptionsItemSelected(item)
-
-
     }
 
     override fun onCreateView(
@@ -111,6 +137,15 @@ class SaveEditTranslationFragment : Fragment() {
     ): View? {
         val mainActivity = activity as MainActivity
         mainActivity.setLocation(MainActivity.Location.SAVE_EDIT_TRANSLATION)
+
+        originalText = arguments?.getString("original_text")
+        translatedText = arguments?.getString("translated_text")
+
+        if (originalText != null || translatedText != null) {
+            saveMode = true
+            requestQueue = Volley.newRequestQueue(context)
+        }
+
         return inflater.inflate(R.layout.fragment_save_edit_translation, container, false)
     }
 
@@ -140,6 +175,30 @@ class SaveEditTranslationFragment : Fragment() {
         setButtonCallbacks(view)
 //        toolbar?.setNavigationIcon(R.drawable.ic_launcher_foreground)
 //        toolbar?.setNavigationOnClickListener (Navigation.createNavigateOnClickListener(R.id.action_saveEditTranslationFragment_to_homeFragment))
+
+        view?.findViewById<EditText>(R.id.originalTextEdit).addTextChangedListener(object :
+            TextWatcher {
+            override fun afterTextChanged(s: Editable) {
+                sendRequest(s.toString())
+            }
+
+            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
+        })
+
+//        val originalTextEditText = view?.findViewById<EditText>(R.id.originalTextEdit)
+//        originalTextEditText.setOnFocusChangeListener { view, hasFocus ->
+//            if (!hasFocus) {
+//                sendRequest(originalTextEditText.text.toString())
+//            }
+//        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        if (requestQueue != null) {
+            requestQueue?.cancelAll(viewModel.REQUEST_TAG)
+        }
     }
 
     private fun setButtonCallbacks(view: View){
@@ -231,4 +290,14 @@ class SaveEditTranslationFragment : Fragment() {
         }
     }
 
+    private fun buildErrorAlert() {
+        val builder = AlertDialog.Builder(context)
+        builder.setMessage(getString(R.string.errorOccurred))
+            .setCancelable(false)
+            .setPositiveButton(R.string.returnWithoutSaving) { _, _ ->
+                activity?.onBackPressed()
+            }
+        val alert = builder.create()
+        alert.show()
+    }
 }

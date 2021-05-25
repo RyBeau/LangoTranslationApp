@@ -1,7 +1,6 @@
 package nz.ac.uclive.oam23.tbc
 
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -24,7 +23,7 @@ import java.time.LocalDate
 class PreviousTranslationsFragment : Fragment(), PreviousTranslationAdapter.OnPreviousTranslationListener {
 
     private val viewModel: TranslationsViewModel by activityViewModels() {
-        TranslationsViewModelFactory((activity?.application as TBCApplication).repository)
+        TranslationsViewModel.TranslationsViewModelFactory((activity?.application as TBCApplication).repository)
     }
 
     override fun onCreateView(

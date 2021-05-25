@@ -96,6 +96,7 @@ class HomeFragment : Fragment() {
         try {
             googleMapRef.isMyLocationEnabled = true
         } catch (e: SecurityException) {
+        } catch (e: UninitializedPropertyAccessException) {
         }
     }
 

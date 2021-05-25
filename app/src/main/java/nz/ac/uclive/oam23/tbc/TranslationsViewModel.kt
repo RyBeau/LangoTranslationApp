@@ -7,30 +7,19 @@ import android.util.Log.d
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.android.volley.RequestQueue
 
 class TranslationsViewModel(private val translationRepository: TranslationRepository): ViewModel() {
 
     val translationsList: LiveData<List<Translation>> = translationRepository.translations.asLiveData()
 
+    val REQUEST_TAG = "translation"
+    val API_KEY = "d4c58350bbc547b8a7d98270627274e5"
+
     // TODO: Once using navigation, switch to passing translation as a parameter on navigation to other fragments
     private var _selectedIndex = MutableLiveData(-1)
     val selectedIndex: LiveData<Int>
         get() = _selectedIndex
-
-//    private var _tempTranslationsList = MutableLiveData<MutableList<Translation>>(arrayListOf(
-//        Translation("1/1/2021", "Test Text"),
-//        Translation("2/1/2021", "Test Text"),
-//        Translation("3/1/2021", "Test Text Longer"),
-//        Translation("4/1/2021", "Test Text"),
-//        Translation("5/1/2021", "Test Text"),
-//        Translation("6/1/2021", "Test Text Longer"),
-//        Translation("7/1/2021", "Test Text"),
-//        Translation("8/1/2021", "Test Text"),
-//        Translation("9/1/2021", "Test Text Longest Text of all"),
-//        Translation("10/1/2021", "Test Text"))
-//    )
-//    val tempTranslationsList: LiveData<MutableList<PreviousTranslation>>
-//        get() = _tempTranslationsList
 
     fun getTranslation(key: Long): LiveData<Translation>{
         return translationRepository.getTranslation(key).asLiveData()
