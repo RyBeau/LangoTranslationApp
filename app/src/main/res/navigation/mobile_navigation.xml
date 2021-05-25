@@ -45,7 +45,20 @@
         android:id="@+id/navigation_saveEdit"
         android:name="nz.ac.uclive.oam23.tbc.SaveEditTranslationFragment"
         android:label="fragment_save_edit_translation"
-        tools:layout="@layout/fragment_save_edit_translation" />
+        tools:layout="@layout/fragment_save_edit_translation" >
+        <argument
+            android:name="translationKey"
+            app:argType="long"
+            android:defaultValue="-1L" />
+        <argument
+            android:name="untranslatedText"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="translatedText"
+            app:argType="string"
+            app:nullable="true" />
+    </fragment>
     <fragment
         android:id="@+id/navigation_viewTranslation"
         android:name="nz.ac.uclive.oam23.tbc.ViewTranslationFragment"

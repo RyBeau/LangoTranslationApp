@@ -3,19 +3,18 @@ package nz.ac.uclive.oam23.tbc
 import android.annotation.SuppressLint
 import android.location.Geocoder
 import android.os.Bundle
+import android.util.Log
 import android.util.Log.d
 import android.view.*
-import android.widget.Button
-import android.widget.EditText
-import android.widget.TextView
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.*
 import androidx.core.widget.doAfterTextChanged
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLng
 import java.time.LocalDate
@@ -61,6 +60,32 @@ class SaveEditTranslationFragment : Fragment() {
 //        }
 //    }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        if (fragmentMode == Mode.EDIT_MODE) {
+            val note = requireView().findViewById<EditText>(R.id.noteEdit).text.toString()
+            val location = requireView().findViewById<EditText>(R.id.locationEdit).text.toString()
+            if (existingTranslation?.note != note){
+                outState.putString("editedNote", note)
+            }
+            if (existingTranslation?.locationString != location){
+                outState.putString("editedLocation", location)
+            }
+        }
+    }
+
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        super.onViewStateRestored(savedInstanceState)
+
+        if (savedInstanceState?.containsKey("editedNote") == true){
+            Log.d("Test", "This ran")
+            requireView().findViewById<EditText>(R.id.noteEdit).setText(savedInstanceState.getString("editedNote"))
+        }
+        if (savedInstanceState?.containsKey("editedLocation") == true){
+            requireView().findViewById<EditText>(R.id.locationEdit).setText(savedInstanceState.getString("editedLocation"))
+        }
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
         when (item.itemId) {
@@ -86,8 +111,14 @@ class SaveEditTranslationFragment : Fragment() {
     ): View? {
         val mainActivity = activity as MainActivity
         mainActivity.setLocation(MainActivity.Location.SAVE_EDIT_TRANSLATION)
+        return inflater.inflate(R.layout.fragment_save_edit_translation, container, false)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
         val key: Long
-        if (requireArguments().getString("translationKey") != null){
+        if (requireArguments().getLong("translationKey") != (-1).toLong()) {
             key = requireArguments().getLong("translationKey")
             fragmentMode = Mode.EDIT_MODE
             viewModel.getTranslation(key).observe(viewLifecycleOwner, { dbTranslation ->
@@ -95,47 +126,50 @@ class SaveEditTranslationFragment : Fragment() {
                 fillFromExisting()
             })
         } else if (requireArguments().getString("untranslatedText") != null &&
-                requireArguments().getString("translatedText") != null){
+                requireArguments().getString("translatedText") != null) {
             fragmentMode = Mode.NEW_MODE
             requireArguments().getString("untranslatedText")?.let {
-                requireArguments().getString("translatedText")?.let {
-                    it1 -> fillNew(it, it1) } }
+                requireArguments().getString("translatedText")?.let { it1 -> fillNew(it, it1) }
+            }
         } else {
             errorToast()
             requireActivity().onBackPressed()
         }
 
-        return inflater.inflate(R.layout.fragment_save_edit_translation, container, false)
+        setButtonCallbacks(view)
+//        toolbar?.setNavigationIcon(R.drawable.ic_launcher_foreground)
+//        toolbar?.setNavigationOnClickListener (Navigation.createNavigateOnClickListener(R.id.action_saveEditTranslationFragment_to_homeFragment))
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        val originalText = view.findViewById<EditText>(R.id.originalTextEdit).text.toString()
-        val translatedText = view.findViewById<TextView>(R.id.translatedText).text.toString()
-        val locationString = view.findViewById<EditText>(R.id.locationEdit).text.toString()
-        val note = view.findViewById<EditText>(R.id.noteEdit).text.toString()
-    if (fragmentMode == Mode.NEW_MODE){
-        view.findViewById<Button>(R.id.saveEditTranslationButton).setOnClickListener {
-
-
-            val translation = Translation(originalText, translatedText, LocalDate.now(), locationString, latLng ,note)
-            viewModel.addTranslation(translation)
+    private fun setButtonCallbacks(view: View){
+        view.findViewById<Button>(R.id.cancelEditTranslationButton).setOnClickListener {
+            requireActivity().onBackPressed()
         }
-    } else {
-        view.findViewById<Button>(R.id.saveEditTranslationButton).setOnClickListener {
-            existingTranslation?.let{
-                viewModel.editTranslation(it)
+
+        if (fragmentMode == Mode.NEW_MODE) {
+            view.findViewById<Button>(R.id.saveEditTranslationButton).setOnClickListener {
+                val originalText = view.findViewById<EditText>(R.id.originalTextEdit).text.toString()
+                val translatedText = view.findViewById<TextView>(R.id.translatedText).text.toString()
+                val locationString = view.findViewById<EditText>(R.id.locationEdit).text.toString()
+                val note = view.findViewById<EditText>(R.id.noteEdit).text.toString()
+
+                val translation = Translation(originalText, translatedText, LocalDate.now(), locationString, latLng, note)
+                viewModel.addTranslation(translation)
+            }
+        } else {
+            view.findViewById<Button>(R.id.saveEditTranslationButton).setOnClickListener {
+                updateExistingTranslation(requireView())
+                existingTranslation?.let { it1 -> viewModel.editTranslation(it1) }
+                (requireActivity() as MainActivity).translationSaved()
             }
         }
     }
 
-
-
-
-
-//        toolbar?.setNavigationIcon(R.drawable.ic_launcher_foreground)
-//        toolbar?.setNavigationOnClickListener (Navigation.createNavigateOnClickListener(R.id.action_saveEditTranslationFragment_to_homeFragment))
+    private fun updateExistingTranslation(view: View){
+        val locationString = view.findViewById<EditText>(R.id.locationEdit).text.toString()
+        val note = view.findViewById<EditText>(R.id.noteEdit).text.toString()
+        existingTranslation?.locationString = locationString
+        existingTranslation?.note = note
     }
 
     @SuppressLint("MissingPermission")
@@ -181,9 +215,14 @@ class SaveEditTranslationFragment : Fragment() {
         if (existingTranslation != null){
             originalText.setText(existingTranslation!!.originalText)
             translatedText.text = existingTranslation!!.translatedText
-            location.setText(existingTranslation!!.locationString)
+            if(location.text.isEmpty()) {
+                location.setText(existingTranslation!!.locationString)
+            }
             date.text = existingTranslation!!.date.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT))
-            note.setText(existingTranslation!!.note)
+            if(note.text.isEmpty()){
+                note.setText(existingTranslation!!.note)
+            }
+
             originalText.isEnabled = false
         } else {
             errorToast()
