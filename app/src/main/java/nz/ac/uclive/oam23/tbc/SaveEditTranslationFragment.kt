@@ -17,6 +17,7 @@ import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
 import com.android.volley.AuthFailureError
 import com.android.volley.RequestQueue
 import com.android.volley.Response
@@ -138,6 +139,7 @@ class SaveEditTranslationFragment : NoNavFragment() {
         }
 
         if (fragmentMode == Mode.NEW_MODE) {
+            view.findViewById<Button>(R.id.deleteTranslationButton).isVisible = false
             view.findViewById<Button>(R.id.saveEditTranslationButton).setOnClickListener {
                 val originalText = view.findViewById<EditText>(R.id.originalTextEdit).text.toString()
                 val translatedText = view.findViewById<TextView>(R.id.translatedText).text.toString()
@@ -153,8 +155,13 @@ class SaveEditTranslationFragment : NoNavFragment() {
                     note
                 )
                 viewModel.addTranslation(translation)
+                findNavController().navigate(R.id.action_navigation_saveEdit_to_navigation_home)
             }
         } else {
+            view.findViewById<Button>(R.id.deleteTranslationButton).isVisible = true
+            view.findViewById<Button>(R.id.deleteTranslationButton).setOnClickListener{
+                confirmDelete()
+            }
             view.findViewById<Button>(R.id.saveEditTranslationButton).setOnClickListener {
                 updateExistingTranslation(requireView())
                 existingTranslation?.let { it1 -> viewModel.editTranslation(it1) }
@@ -234,7 +241,26 @@ class SaveEditTranslationFragment : NoNavFragment() {
         }
     }
 
-    fun sendRequest(text: String) {
+    /**
+     * Creates confirmation dialog to confirm deletion.
+     */
+    private fun confirmDelete(){
+        val builder = AlertDialog.Builder(context)
+        builder.setMessage(getString(R.string.delete_confirmation))
+                .setCancelable(false)
+                .setPositiveButton(R.string.yes) { _, _ ->
+                    existingTranslation?.let { viewModel.deleteTranslation(it) }
+                    (requireActivity() as MainActivity).setLocation(MainActivity.Location.PREVIOUS_TRANSLATIONS)
+                    findNavController().navigate(R.id.action_navigation_saveEdit_to_navigation_previous)
+                }
+                .setNegativeButton(R.string.no){ dialog, _ ->
+                    dialog.dismiss()
+                }
+        val alert = builder.create()
+        alert.show()
+    }
+
+    private fun sendRequest(text: String) {
         val url = "https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&to=en"
         val request: StringRequest =
                 object : StringRequest(Method.POST, url, Response.Listener<String?> { response ->
@@ -256,7 +282,10 @@ class SaveEditTranslationFragment : NoNavFragment() {
                         translationResponse = "No translation available"
                     }
                     view?.findViewById<TextView>(R.id.translatedText)?.setText(translationResponse)
-                }, Response.ErrorListener { buildErrorAlert() }) {
+                }, Response.ErrorListener {
+                    errorToast()
+                    findNavController().navigate(R.id.action_navigation_saveEdit_to_navigation_home)
+                }) {
 
                     @Throws(AuthFailureError::class)
                     override fun getHeaders(): Map<String, String> {
@@ -275,16 +304,5 @@ class SaveEditTranslationFragment : NoNavFragment() {
                     }
                 }
         requestQueue?.add(request)
-    }
-
-    private fun buildErrorAlert() {
-        val builder = AlertDialog.Builder(context)
-        builder.setMessage(getString(R.string.errorOccurred))
-                .setCancelable(false)
-                .setPositiveButton(R.string.returnWithoutSaving) { _, _ ->
-                    activity?.onBackPressed()
-                }
-        val alert = builder.create()
-        alert.show()
     }
 }

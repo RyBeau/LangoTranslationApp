@@ -31,13 +31,8 @@ class TranslationsViewModel(private val translationRepository: TranslationReposi
     }
 
     // TODO: ??? Change delete and edit functions to take in Translation parameters rather than indices
-    fun deleteTranslation(index: Int) = viewModelScope.launch {
-        // delete that translation. if it's -1 tho or > len then that's an issue
-        if (index < 0 || translationsList.value == null || index > translationsList.value!!.size) {
-            // we've got a problem...
-        } else {
-            translationRepository.delete(translationsList.value!![index])
-        }
+    fun deleteTranslation(translation: Translation) = viewModelScope.launch {
+            translationRepository.delete(translation)
     }
 
     fun editTranslation(updatedTranslation: Translation) = viewModelScope.launch {
