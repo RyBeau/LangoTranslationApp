@@ -2,6 +2,8 @@ package nz.ac.uclive.oam23.tbc
 
 import android.app.AlertDialog
 import android.os.Bundle
+import android.view.MenuItem
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -29,10 +31,23 @@ class MainActivity : AppCompatActivity() {
             Location.SAVE_EDIT_TRANSLATION -> {
                 onBackConfirmation()
             }
+            Location.PROCESSING -> {
+                Toast.makeText(this,getString(R.string.back_not_allowed), Toast.LENGTH_SHORT).show()
+            }
             else -> {
                 super.onBackPressed()
             }
         }
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            android.R.id.home -> {
+                onBackPressed()
+                return true
+            }
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     /**
@@ -75,11 +90,18 @@ class MainActivity : AppCompatActivity() {
         val navController = findNavController(R.id.nav_host_fragment)
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
-        val appBarConfiguration = AppBarConfiguration(setOf(
-                R.id.navigation_home, R.id.navigation_preferences, R.id.navigation_previous))
+        val appBarConfiguration = AppBarConfiguration(
+            setOf(
+                R.id.navigation_home, R.id.navigation_preferences, R.id.navigation_previous
+            )
+        )
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
         setTheme(this)
+    }
+
+    fun translationSaved() {
+        super.onBackPressed()
     }
 
 }

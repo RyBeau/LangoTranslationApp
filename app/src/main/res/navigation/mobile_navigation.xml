@@ -10,7 +10,7 @@
         android:id="@+id/navigation_home"
         android:name="nz.ac.uclive.oam23.tbc.HomeFragment"
         android:label="@string/title_home"
-        tools:layout="@layout/fragment_home" >
+        tools:layout="@layout/fragment_home">
         <action
             android:id="@+id/action_navigation_home_to_processingFragment"
             app:destination="@id/processingFragment" />
@@ -26,7 +26,7 @@
         android:id="@+id/navigation_previous"
         android:name="nz.ac.uclive.oam23.tbc.PreviousTranslationsFragment"
         android:label="@string/title_previous_translations"
-        tools:layout="@layout/fragment_previous_translations" >
+        tools:layout="@layout/fragment_previous_translations">
         <action
             android:id="@+id/action_navigation_previous_to_navigation_viewTranslation"
             app:destination="@id/navigation_viewTranslation" />
@@ -35,24 +35,41 @@
         android:id="@+id/processingFragment"
         android:name="nz.ac.uclive.oam23.tbc.ProcessingFragment"
         android:label="fragment_processing"
-        tools:layout="@layout/fragment_processing" >
-        <!-- TODO Getting an error regarding saveEditTranslationFragment2 -->
+        tools:layout="@layout/fragment_processing">
         <action
             android:id="@+id/action_processingFragment_to_navigation_saveEdit"
-            app:destination="@id/navigation_saveEdit" />
+            app:destination="@id/navigation_saveEdit"
+            app:popUpTo="@id/processingFragment"
+            app:popUpToInclusive="true" />
     </fragment>
     <fragment
         android:id="@+id/navigation_saveEdit"
         android:name="nz.ac.uclive.oam23.tbc.SaveEditTranslationFragment"
-        android:label="fragment_save_edit_translation"
-        tools:layout="@layout/fragment_save_edit_translation" />
+        tools:layout="@layout/fragment_save_edit_translation">
+        <argument
+            android:name="translationKey"
+            android:defaultValue="-1L"
+            app:argType="long" />
+        <argument
+            android:name="untranslatedText"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="translatedText"
+            app:argType="string"
+            app:nullable="true" />
+    </fragment>
     <fragment
         android:id="@+id/navigation_viewTranslation"
         android:name="nz.ac.uclive.oam23.tbc.ViewTranslationFragment"
-        android:label="fragment_view_translation"
-        tools:layout="@layout/fragment_view_translation" >
+        android:label="@string/title_view_translation"
+        tools:layout="@layout/fragment_view_translation">
         <action
             android:id="@+id/action_navigation_viewTranslation_to_navigation_saveEdit"
             app:destination="@id/navigation_saveEdit" />
+        <argument
+            android:name="translationKey"
+            android:defaultValue="-1L"
+            app:argType="long" />
     </fragment>
 </navigation>

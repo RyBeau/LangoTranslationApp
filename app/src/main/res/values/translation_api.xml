@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="TRANSLATION_API_REQUEST_TAG">translation</string>
+    <string name="TRANSLATION_API_KEY">d4c58350bbc547b8a7d98270627274e5</string>
+</resources>

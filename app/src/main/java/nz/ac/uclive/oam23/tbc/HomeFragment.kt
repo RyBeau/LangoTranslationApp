@@ -34,7 +34,7 @@ import java.util.*
 import kotlin.concurrent.schedule
 import kotlin.jvm.Throws
 
-class HomeFragment : Fragment() {
+class HomeFragment : NavFragment() {
 
     private val viewModel: TranslationsViewModel by activityViewModels() {
         TranslationsViewModelFactory((activity?.application as TBCApplication).repository)

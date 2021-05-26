@@ -12,7 +12,8 @@ class Translation(
     @ColumnInfo(name = "original_text") var originalText: String,
     @ColumnInfo(name = "translated_text") var translatedText: String,
     @ColumnInfo var date: LocalDate,
-    @ColumnInfo var location: LatLng,
+    @ColumnInfo var locationString: String,
+    @ColumnInfo var locationLatLng: LatLng,
     @ColumnInfo var note: String
 ) {
     @PrimaryKey(autoGenerate = true) var id: Long = 0
