@@ -61,6 +61,11 @@
             android:name="translatedText"
             app:argType="string"
             app:nullable="true" />
+        <action
+            android:id="@+id/action_navigation_saveEdit_to_navigation_previous"
+            app:destination="@id/navigation_previous"
+            app:popUpTo="@id/navigation_previous"
+            app:popUpToInclusive="true" />
     </fragment>
     <fragment
         android:id="@+id/navigation_viewTranslation"
