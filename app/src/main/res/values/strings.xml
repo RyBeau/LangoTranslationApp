@@ -1,7 +1,5 @@
 <resources>
-    <string name="app_name">TBC</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="app_name">Lango</string>
     <string name="date">Date:</string>
     <string name="original_text">Original Text:</string>
     <string name="translated_text">Translated Text:</string>
