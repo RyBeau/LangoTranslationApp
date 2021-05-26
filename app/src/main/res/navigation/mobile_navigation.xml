@@ -14,6 +14,9 @@
         <action
             android:id="@+id/action_navigation_home_to_processingFragment"
             app:destination="@id/processingFragment" />
+        <action
+            android:id="@+id/action_navigation_home_to_viewTranslation"
+            app:destination="@id/navigation_viewTranslation" />
     </fragment>
 
     <fragment
