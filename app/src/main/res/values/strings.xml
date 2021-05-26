@@ -52,5 +52,6 @@
 
     <string name="theme_header">Themes</string>
     <string name="theme_title">Select a theme</string>
+    <string name="check_camera_settings">Please check your device\'s camera settings</string>
 
 </resources>
