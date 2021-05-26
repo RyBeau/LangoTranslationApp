@@ -1,6 +1,7 @@
 package nz.ac.uclive.oam23.tbc
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -15,11 +16,10 @@ import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.FileProvider
 import androidx.core.os.bundleOf
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.observe
-import androidx.navigation.Navigation
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -31,11 +31,11 @@ import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.concurrent.schedule
 import kotlin.jvm.Throws
 
 class HomeFragment : NavFragment() {
 
+    private var totalItemsSeen: Int = 0
     private val viewModel: TranslationsViewModel by activityViewModels() {
         TranslationsViewModelFactory((activity?.application as TBCApplication).repository)
     }
@@ -51,7 +51,9 @@ class HomeFragment : NavFragment() {
     val REQUEST_CAMERA_STORAGE_PERMISSIONS = 3
     lateinit var googleMapRef: GoogleMap
 
+
     lateinit var currentPhotoPath: String
+
 
     /**
      * Handles feedback to the user after permissions are accepted.
@@ -70,7 +72,7 @@ class HomeFragment : NavFragment() {
                 if (resultCode == Activity.RESULT_OK) {
                     Toast.makeText(requireActivity(), R.string.on_photo_success, Toast.LENGTH_LONG).show()
                     val bundle = bundleOf("photoPath" to currentPhotoPath)
-                        view?.findNavController()?.navigate(R.id.action_navigation_home_to_processingFragment, bundle)
+                    view?.findNavController()?.navigate(R.id.action_navigation_home_to_processingFragment, bundle)
                 }
             }
         }
@@ -156,32 +158,56 @@ class HomeFragment : NavFragment() {
 
     /**
      * Function to change the map once it is created.
+     * Load all markers
      * Add markers/move camera/set zoom here as required.
      */
     private val callback = OnMapReadyCallback { googleMap ->
         googleMapRef = googleMap
+        loadAllTranslations()
+        val NZ = LatLng(-43.5437, 172.5470)
+        googleMap.moveCamera(CameraUpdateFactory.newLatLng(NZ))
+        //Set up users location.
+        enableUserLocation()
+    }
 
+    /**
+     * Loads all of the pins to be used in the map.
+     */
+    @SuppressLint("PotentialBehaviorOverride")
+    fun loadAllTranslations() {
         viewModel.translationsList.observe(viewLifecycleOwner) { newTranslations ->
             for (translation in newTranslations) {
-                val marker = LatLng(translation.location.longitude, translation.location.latitude)
-                googleMap.addMarker(MarkerOptions().position(marker).title(translation.note))
-                googleMap.setOnMarkerClickListener { marker ->
-                    Toast.makeText(requireContext(), translation.note, Toast.LENGTH_LONG).show()
-//                    viewModel.setSelectedIndex(position)
-//                    Navigation.findNavController(requireView()).navigate(R.id.action_navigation_previous_to_navigation_viewTranslation)
+
+                //create marker
+                val position = LatLng(translation.locationLatLng.latitude, translation.locationLatLng.longitude)
+                googleMapRef.moveCamera(CameraUpdateFactory.newLatLng(position))
+                val gMarker = googleMapRef.addMarker(MarkerOptions().position(position).title(translation.translatedText).snippet(translation.note))
+                gMarker.tag = totalItemsSeen
+
+                //Set up on click listener
+                googleMapRef.setOnMarkerClickListener { marker ->
+                    if (marker.isInfoWindowShown) {
+                        marker.hideInfoWindow()
+                    } else {
+                        marker.showInfoWindow()
+                    }
                     true
+                }
+                totalItemsSeen += 1
+
+                //Set up window handler
+                googleMapRef.setOnInfoWindowClickListener { marker ->
+                    Toast.makeText(requireContext(), marker.tag.toString(), Toast.LENGTH_LONG).show()
+                    val viewModelPosition = marker.tag as Int
+                    viewModel.setSelectedIndex(viewModelPosition)
+                    val bundle = bundleOf("translationKey" to (viewModel.translationsList.value!![viewModelPosition].id))
+                    findNavController().navigate(R.id.action_navigation_home_to_viewTranslation, bundle)
                 }
 
             }
         }
-
-        val sydney = LatLng(-34.0, 151.0)
-        googleMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
-        googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
-
-        //Set up users location.
-        enableUserLocation()
     }
+
 
 
     /**
