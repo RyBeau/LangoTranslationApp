@@ -155,6 +155,7 @@ class SaveEditTranslationFragment : NoNavFragment() {
                     note
                 )
                 viewModel.addTranslation(translation)
+                findNavController().navigate(R.id.action_navigation_saveEdit_to_navigation_home)
             }
         } else {
             view.findViewById<Button>(R.id.deleteTranslationButton).isVisible = true
@@ -249,6 +250,7 @@ class SaveEditTranslationFragment : NoNavFragment() {
                 .setCancelable(false)
                 .setPositiveButton(R.string.yes) { _, _ ->
                     existingTranslation?.let { viewModel.deleteTranslation(it) }
+                    (requireActivity() as MainActivity).setLocation(MainActivity.Location.PREVIOUS_TRANSLATIONS)
                     findNavController().navigate(R.id.action_navigation_saveEdit_to_navigation_previous)
                 }
                 .setNegativeButton(R.string.no){ dialog, _ ->
@@ -280,7 +282,10 @@ class SaveEditTranslationFragment : NoNavFragment() {
                         translationResponse = "No translation available"
                     }
                     view?.findViewById<TextView>(R.id.translatedText)?.setText(translationResponse)
-                }, Response.ErrorListener { buildErrorAlert() }) {
+                }, Response.ErrorListener {
+                    errorToast()
+                    findNavController().navigate(R.id.action_navigation_saveEdit_to_navigation_home)
+                }) {
 
                     @Throws(AuthFailureError::class)
                     override fun getHeaders(): Map<String, String> {
@@ -299,16 +304,5 @@ class SaveEditTranslationFragment : NoNavFragment() {
                     }
                 }
         requestQueue?.add(request)
-    }
-
-    private fun buildErrorAlert() {
-        val builder = AlertDialog.Builder(context)
-        builder.setMessage(getString(R.string.errorOccurred))
-                .setCancelable(false)
-                .setPositiveButton(R.string.returnWithoutSaving) { _, _ ->
-                    activity?.onBackPressed()
-                }
-        val alert = builder.create()
-        alert.show()
     }
 }
