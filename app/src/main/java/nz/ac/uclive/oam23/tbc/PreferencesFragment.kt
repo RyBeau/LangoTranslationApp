@@ -23,7 +23,7 @@ class PreferencesFragment : PreferenceFragmentCompat() {
         val listener: SharedPreferences.OnSharedPreferenceChangeListener =
                 SharedPreferences.OnSharedPreferenceChangeListener { _: SharedPreferences, key: String ->
                     if (key == "themes") {
-                        setTheme(requireActivity())
+                        activity?.let { setTheme(it) }
                     }
                 }
         prefs.registerOnSharedPreferenceChangeListener(listener)
