@@ -1,9 +1,6 @@
 package nz.ac.uclive.oam23.tbc
 
 import android.content.Context
-import android.content.Intent
-import android.util.Log
-import android.view.View
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.preference.PreferenceManager
 
@@ -24,27 +21,5 @@ fun setTheme(context: Context) {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
         }
     }
-}
 
-/**
- * Turns on/off foreground location tracking and, hence, notifications when you are near a previous translation.
- */
-fun setNotifications(context: Context) {
-    val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-     if (sharedPreferences.getBoolean("notifications",false)) {
-        startService(context)
-    } else {
-        stopService(context)
-     }
 }
-
-private fun startService(context: Context) {
-    val intent = Intent(context, NotificationService::class.java)
-    context.startService(intent)
-}
-
-private fun stopService(context: Context) {
-    val intent = Intent(context, NotificationService::class.java)
-    context.stopService(intent)
-}
-

@@ -1,8 +1,5 @@
 package nz.ac.uclive.oam23.tbc
 
-import android.app.Notification
-import android.app.PendingIntent
-import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -25,11 +22,9 @@ class PreferencesFragment : PreferenceFragmentCompat() {
         //Setup a shared preference listener for hpwAddress and restart transport
         val listener: SharedPreferences.OnSharedPreferenceChangeListener =
                 SharedPreferences.OnSharedPreferenceChangeListener { _: SharedPreferences, key: String ->
-                    when (key) {
-                        "themes" -> activity?.let { setTheme(it) }
-                        "notifications" -> activity?.let { setNotifications(it) }
+                    if (key == "themes") {
+                        activity?.let { setTheme(it) }
                     }
-
                 }
         prefs.registerOnSharedPreferenceChangeListener(listener)
 
