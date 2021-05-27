@@ -13,11 +13,11 @@ class TBCApplication: Application() {
         createNotificationChannel(getString(R.string.NOTIFICATION_CHANNEL_ID))
     }
 
-    private fun createNotificationChannel(channelId: String) {
+     fun createNotificationChannel(channelId: String) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val serviceChannel = NotificationChannel(
                 channelId,
-                "Location Check Service Channel",
+                getString(R.string.service_channel_name),
                 NotificationManager.IMPORTANCE_DEFAULT
             )
             val manager = getSystemService(NotificationManager::class.java)

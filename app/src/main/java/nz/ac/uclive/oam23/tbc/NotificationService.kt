@@ -1,12 +1,11 @@
 package nz.ac.uclive.oam23.tbc
 
 import android.Manifest
-import android.app.Notification
+import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
-import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.IBinder
@@ -14,19 +13,29 @@ import android.os.Looper
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
 import com.google.android.gms.tasks.Task
+import kotlinx.coroutines.*
+
 
 class NotificationService : Service() {
 
+
+
     val REQUEST_CHECK_SETTINGS = 4
+    val NOTIFICATION_ID = 1
+    val SERVICE_ID = 2
 
     lateinit var fusedLocationClient: FusedLocationProviderClient
     lateinit var location: Location
     lateinit var locationRequest: LocationRequest
     lateinit var locationCallback: LocationCallback
     var requestingLocations = false
+
+    private val job = SupervisorJob()
+    private val scope = CoroutineScope(Dispatchers.Main + job)
 
     var running = false
 
@@ -42,7 +51,7 @@ class NotificationService : Service() {
                     .setContentIntent(pendingIntent)
                     .build()
 
-            startForeground(1, notification)
+            startForeground(SERVICE_ID, notification)
 
 //            running = true
 //        }
@@ -57,10 +66,39 @@ class NotificationService : Service() {
                         "location",
                         location.latitude.toString() + " " + location.longitude.toString()
                     )
+
+                    val lat = location.latitude.toInt()
+                    val lon = location.longitude.toInt()
+
+                    // -43.4776049, 172.5930723
+                    // -43.477[0-9]*, 172.593[0-9]*
+
+                    val latlngString = lat.toString() + "%, " + lon.toString() + "%"
+                    scope.launch {
+                        withContext(Dispatchers.IO) {
+                             val nearbyTranslations =
+                                TranslationDatabase.getDatabase(applicationContext).translationDao()
+                                    .getNearbyTranslations(latlngString)
+
+                            if (!nearbyTranslations.isEmpty()) {
+                                // make a notification :D
+                                createNotification()
+
+                                for (translation in nearbyTranslations) {
+                                    Log.d("nearby", translation.locationString)
+                                }
+                            } else {
+                                removeNotifications()
+                            }
+                        }
+                    }
                 }
             }
         }
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
             // here to request the missing permissions, and then overriding
@@ -119,7 +157,10 @@ class NotificationService : Service() {
     }
 
     private fun startLocationUpdates(context: Context) {
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
             // here to request the missing permissions, and then overriding
@@ -130,7 +171,11 @@ class NotificationService : Service() {
             return
         }
         if (!requestingLocations && ::fusedLocationClient.isInitialized && ::locationRequest.isInitialized && ::locationCallback.isInitialized) {
-            fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
+            fusedLocationClient.requestLocationUpdates(
+                locationRequest,
+                locationCallback,
+                Looper.getMainLooper()
+            )
             requestingLocations = true
         }
     }
@@ -140,7 +185,39 @@ class NotificationService : Service() {
             fusedLocationClient.removeLocationUpdates(locationCallback)
             requestingLocations = false
         }
+        removeNotifications()
     }
 
+    private fun createNotification() {
+        val mNotificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+        val notifications = mNotificationManager.activeNotifications
+
+//        for (notification in notifications) {
+//            if (notification.id == NOTIFICATION_ID) {
+//                // Do something.
+//                return
+//            }
+//        }
+
+        var builder = NotificationCompat.Builder(this, getString(R.string.NOTIFICATION_CHANNEL_ID))
+            .setSmallIcon(R.mipmap.ic_launcher_round)
+            .setContentTitle(getString(R.string.notification_title))
+            .setContentText(getString(R.string.notification_content))
+            .setStyle(
+                NotificationCompat.BigTextStyle()
+                    .bigText(getString(R.string.notification_content))
+            )
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+
+        with(NotificationManagerCompat.from(this)) {
+            notify(NOTIFICATION_ID, builder.build())
+        }
+    }
+
+    private fun removeNotifications() {
+        with(NotificationManagerCompat.from(this)) {
+            cancel(NOTIFICATION_ID)
+        }
+    }
 
 }
