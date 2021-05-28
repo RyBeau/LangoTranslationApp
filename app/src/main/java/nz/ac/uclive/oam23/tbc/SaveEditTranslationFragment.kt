@@ -250,7 +250,6 @@ class SaveEditTranslationFragment : NoNavFragment() {
     }
 
     @SuppressLint("MissingPermission")
-
     private fun setCurrentLocation(){
         val location = requireView().findViewById<EditText>(R.id.locationEdit)
         val locationClient = LocationServices.getFusedLocationProviderClient(requireContext())
