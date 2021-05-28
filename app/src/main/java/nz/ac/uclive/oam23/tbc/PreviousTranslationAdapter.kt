@@ -5,6 +5,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 
 /**
  * Adapter for the StoredTranslationFragment
@@ -36,7 +39,11 @@ class PreviousTranslationAdapter(private var translations: List<Translation>, pr
     }
 
     override fun onBindViewHolder(viewHolder: PreviousTranslationViewHolder, position: Int) {
-        viewHolder.date.text = translations[position].date.toString()
+        viewHolder.date.text = translations[position].date.format(
+                DateTimeFormatter.ofLocalizedDate(
+                        FormatStyle.SHORT
+                )
+        )
         viewHolder.originalText.text = translations[position].originalText
     }
 

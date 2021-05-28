@@ -12,6 +12,8 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
 import androidx.navigation.findNavController
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 
 
 /**
@@ -69,6 +71,10 @@ class ViewTranslationFragment : NoNavFragment() {
         translatedText?.text = translation.translatedText
         location?.text = translation.locationString
         note?.text = translation.note
-        date?.text = translation.date.toString()
+        date?.text = translation.date.format(
+                DateTimeFormatter.ofLocalizedDate(
+                        FormatStyle.SHORT
+                )
+        )
     }
 }
