@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.Toast
+import android.widget.ToggleButton
 import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
@@ -26,6 +27,8 @@ class PreviousTranslationsFragment : NavFragment(), PreviousTranslationAdapter.O
         TranslationsViewModelFactory((activity?.application as TBCApplication).repository)
     }
 
+    private lateinit var currentSort: PreviousTranslationAdapter.SortOrder
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -39,6 +42,7 @@ class PreviousTranslationsFragment : NavFragment(), PreviousTranslationAdapter.O
 
         viewModel.translationsList.observe(viewLifecycleOwner, { newTranslations ->
             translationAdapter.setData(newTranslations)
+            translationAdapter.sortTranslations(currentSort)
         })
 
         recyclerView.apply {
@@ -46,6 +50,11 @@ class PreviousTranslationsFragment : NavFragment(), PreviousTranslationAdapter.O
             layoutManager = LinearLayoutManager(activity)
         }
 
+        val toggleButton = view.findViewById<ToggleButton>(R.id.dateButton)
+        toggleButton.setOnCheckedChangeListener { _, isChecked ->
+            setSort(isChecked, translationAdapter)
+        }
+        setSort(toggleButton.isChecked, translationAdapter)
         return view
     }
 
@@ -53,5 +62,14 @@ class PreviousTranslationsFragment : NavFragment(), PreviousTranslationAdapter.O
         viewModel.setSelectedIndex(position)
         val bundle = bundleOf("translationKey" to (viewModel.translationsList.value!![position].id))
         findNavController().navigate(R.id.action_navigation_previous_to_navigation_viewTranslation, bundle)
+    }
+
+    private fun setSort(isChecked: Boolean, adapter: PreviousTranslationAdapter){
+        currentSort = if (isChecked) {
+            PreviousTranslationAdapter.SortOrder.ASC
+        } else {
+            PreviousTranslationAdapter.SortOrder.DSC
+        }
+        adapter.sortTranslations(currentSort)
     }
 }
