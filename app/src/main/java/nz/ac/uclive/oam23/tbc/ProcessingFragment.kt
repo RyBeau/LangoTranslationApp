@@ -138,7 +138,7 @@ class ProcessingFragment : NoNavFragment() {
                             Log.d("Text", json.get(0).asJsonObject.get("translations").asJsonArray.get(0).asJsonObject.get("text").asString)
 
                             val bundle = bundleOf("untranslatedText" to text, "translatedText" to json.get(0).asJsonObject.get("translations").asJsonArray.get(0).asJsonObject.get("text").asString)
-                            findNavController().navigate(R.id.action_processingFragment_to_navigation_saveEdit, bundle)
+                            view?.let { it-> Navigation.findNavController(it).navigate(R.id.action_processingFragment_to_navigation_saveEdit, bundle)}
 
                         } else {
                             Log.d("req", "Response is null")
