@@ -197,7 +197,6 @@ class HomeFragment : NavFragment() {
 
                 //Set up window handler
                 googleMapRef.setOnInfoWindowClickListener { marker ->
-                    Toast.makeText(requireContext(), marker.tag.toString(), Toast.LENGTH_LONG).show()
                     val viewModelPosition = marker.tag as Int
                     viewModel.setSelectedIndex(viewModelPosition)
                     val bundle = bundleOf("translationKey" to (viewModel.translationsList.value!![viewModelPosition].id))
