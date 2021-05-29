@@ -35,7 +35,6 @@ import kotlin.jvm.Throws
 
 class HomeFragment : NavFragment() {
 
-    private var totalItemsSeen: Int = 0
     private val viewModel: TranslationsViewModel by activityViewModels() {
         TranslationsViewModelFactory((activity?.application as TBCApplication).repository)
     }
@@ -175,6 +174,7 @@ class HomeFragment : NavFragment() {
      */
     @SuppressLint("PotentialBehaviorOverride")
     fun loadAllTranslations() {
+        var totalItemsSeen = 0
         viewModel.translationsList.observe(viewLifecycleOwner) { newTranslations ->
             for (translation in newTranslations) {
 
@@ -197,7 +197,6 @@ class HomeFragment : NavFragment() {
 
                 //Set up window handler
                 googleMapRef.setOnInfoWindowClickListener { marker ->
-                    Toast.makeText(requireContext(), marker.tag.toString(), Toast.LENGTH_LONG).show()
                     val viewModelPosition = marker.tag as Int
                     viewModel.setSelectedIndex(viewModelPosition)
                     val bundle = bundleOf("translationKey" to (viewModel.translationsList.value!![viewModelPosition].id))
