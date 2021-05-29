@@ -41,7 +41,7 @@ class SaveEditTranslationFragment : NoNavFragment() {
     }
 
     private val viewModel: TranslationsViewModel by activityViewModels {
-        TranslationsViewModelFactory((activity?.application as TBCApplication).repository)
+        TranslationsViewModelFactory((activity?.application as LangoApplication).repository)
     }
 
     private lateinit var fragmentMode: Mode

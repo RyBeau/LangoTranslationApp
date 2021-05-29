@@ -12,7 +12,6 @@ import android.os.Bundle
 import android.os.Environment
 import android.os.Looper
 import android.provider.MediaStore
-import android.util.Log
 import android.util.Log.d
 import android.view.LayoutInflater
 import android.view.View
@@ -44,7 +43,7 @@ import kotlin.jvm.Throws
 class HomeFragment : NavFragment() {
 
     private val viewModel: TranslationsViewModel by activityViewModels() {
-        TranslationsViewModelFactory((activity?.application as TBCApplication).repository)
+        TranslationsViewModelFactory((activity?.application as LangoApplication).repository)
     }
 
     private val PERMISSIONS_REQUEST_CODE = 10
