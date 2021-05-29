@@ -24,6 +24,9 @@ interface TranslationDao {
 
     @Query("SELECT * FROM translation WHERE id = :key")
     fun getTranslation(key: Long): Flow<Translation>
+
+    @Query("SELECT * FROM translation WHERE locationLatLng LIKE :latlngString")
+    fun getNearbyTranslations(latlngString: String): List<Translation>
 }
 
 class TranslationRepository(private val translationDao: TranslationDao) {

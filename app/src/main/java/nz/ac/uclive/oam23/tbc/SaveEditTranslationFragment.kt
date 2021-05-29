@@ -266,7 +266,7 @@ class SaveEditTranslationFragment : NoNavFragment() {
         val locationClient = LocationServices.getFusedLocationProviderClient(requireContext())
         locationClient.lastLocation.addOnSuccessListener {
             latLng = LatLng(it.latitude, it.longitude)
-            val geocoder = Geocoder(requireContext(), Locale.getDefault())
+            val geocoder = Geocoder(context, Locale.getDefault())
             val addressList = geocoder.getFromLocation(it.latitude, it.longitude, 1)
             val locationString = "${addressList[0].getAddressLine(0)}, ${addressList[0].locality}, " +
                     "${addressList[0].postalCode}, ${addressList[0].postalCode}"

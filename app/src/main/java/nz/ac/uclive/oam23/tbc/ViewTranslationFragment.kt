@@ -1,6 +1,9 @@
 package nz.ac.uclive.oam23.tbc
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -12,6 +15,8 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
 import androidx.navigation.findNavController
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 
 
 /**
@@ -39,7 +44,7 @@ class ViewTranslationFragment : NoNavFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val key = requireArguments().getLong("translationKey")
+        val key = requireArguments().getLong(getString(R.string.translation_bundle_key))
         if (key == (-1).toLong()){
             Toast.makeText(
                     requireActivity(),
@@ -53,9 +58,24 @@ class ViewTranslationFragment : NoNavFragment() {
             fillTextViews()
         })
         view.findViewById<Button>(R.id.editTranslationButton).setOnClickListener {
-            val bundle = bundleOf("translationKey" to translation.id)
+            val bundle = bundleOf(getString(R.string.translation_bundle_key) to translation.id)
             view.findNavController().navigate(R.id.action_navigation_viewTranslation_to_navigation_saveEdit, bundle)
         }
+        view.findViewById<Button>(R.id.shareTranslationButton).setOnClickListener {
+            var message = "Wow! I just translated this image using Lango!\n"
+            message += "Original Text:" + translation.originalText + "\n"
+            message += "Translation: " + translation.translatedText + "\n"
+            message += "Date: " + translation.date + "\n"
+            composeMmsMessage(message)
+         }
+    }
+
+    fun composeMmsMessage(message: String) {
+        val intent = Intent(Intent.ACTION_VIEW).apply {
+            setData(Uri.parse("mms:"))
+            putExtra("sms_body", message)
+        }
+        startActivity(intent)
     }
 
     private fun fillTextViews() {
@@ -69,6 +89,10 @@ class ViewTranslationFragment : NoNavFragment() {
         translatedText?.text = translation.translatedText
         location?.text = translation.locationString
         note?.text = translation.note
-        date?.text = translation.date.toString()
+        date?.text = translation.date.format(
+                DateTimeFormatter.ofLocalizedDate(
+                        FormatStyle.SHORT
+                )
+        )
     }
 }
