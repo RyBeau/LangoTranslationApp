@@ -253,7 +253,7 @@ class HomeFragment : NavFragment() {
         val mainActivity = activity as MainActivity
         mainActivity.setLocation(MainActivity.Location.HOME)
 
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult?) {
                 locationResult ?: return
@@ -315,7 +315,7 @@ class HomeFragment : NavFragment() {
 
         val builder = LocationSettingsRequest.Builder().addLocationRequest(locationRequest)
 
-        val client: SettingsClient = LocationServices.getSettingsClient(context)
+        val client: SettingsClient = LocationServices.getSettingsClient(requireContext())
         val task: Task<LocationSettingsResponse> = client.checkLocationSettings(builder.build())
 
         task.addOnSuccessListener { locationSettingsResponse ->
