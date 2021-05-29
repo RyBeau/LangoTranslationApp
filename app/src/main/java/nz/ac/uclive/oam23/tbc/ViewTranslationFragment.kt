@@ -59,10 +59,7 @@ class ViewTranslationFragment : NoNavFragment() {
             view.findNavController().navigate(R.id.action_navigation_viewTranslation_to_navigation_saveEdit, bundle)
         }
         view.findViewById<Button>(R.id.shareTranslationButton).setOnClickListener {
-            var message = "Wow! I just translated this image using Lango!\n"
-            message += "Original Text:" + translation.originalText + "\n"
-            message += "Translation: " + translation.translatedText + "\n"
-            message += "Date: " + translation.date + "\n"
+            val message = getString(R.string.share_message, translation.originalText, translation.translatedText, translation.date.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT)))
             composeMmsMessage(message)
          }
     }
