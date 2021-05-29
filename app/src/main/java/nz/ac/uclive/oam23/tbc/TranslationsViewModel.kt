@@ -13,7 +13,6 @@ class TranslationsViewModel(private val translationRepository: TranslationReposi
 
     val translationsList: LiveData<List<Translation>> = translationRepository.translations.asLiveData()
 
-    // TODO: Once using navigation, switch to passing translation as a parameter on navigation to other fragments
     private var _selectedIndex = MutableLiveData(-1)
     val selectedIndex: LiveData<Int>
         get() = _selectedIndex
@@ -30,7 +29,6 @@ class TranslationsViewModel(private val translationRepository: TranslationReposi
         translationRepository.insert(translation)
     }
 
-    // TODO: ??? Change delete and edit functions to take in Translation parameters rather than indices
     fun deleteTranslation(translation: Translation) = viewModelScope.launch {
             translationRepository.delete(translation)
     }

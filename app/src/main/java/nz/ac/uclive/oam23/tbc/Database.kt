@@ -20,7 +20,7 @@ abstract class TranslationDatabase : RoomDatabase() {
                     context.applicationContext,
                     TranslationDatabase::class.java,
                     "translation_database"
-                ).build()
+                ).fallbackToDestructiveMigration().build()
                 INSTANCE = instance
                 instance
             }
