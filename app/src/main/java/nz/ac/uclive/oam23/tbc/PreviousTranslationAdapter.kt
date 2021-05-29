@@ -5,17 +5,17 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-
-/**
- * Temporary Class definition
- */
-class PreviousTranslation(val date: String, var originalText: String, var translatedText: String = "", var note: String = ""){}
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 
 /**
  * Adapter for the StoredTranslationFragment
  */
 class PreviousTranslationAdapter(private var translations: List<Translation>, private val onPreviousTranslationListener: OnPreviousTranslationListener)
     : RecyclerView.Adapter<PreviousTranslationAdapter.PreviousTranslationViewHolder>() {
+
+    enum class SortOrder { ASC , DSC }
 
     class PreviousTranslationViewHolder(itemView: View, private val onPreviousTranslationListener: OnPreviousTranslationListener)
         : RecyclerView.ViewHolder(itemView), View.OnClickListener {
@@ -39,7 +39,11 @@ class PreviousTranslationAdapter(private var translations: List<Translation>, pr
     }
 
     override fun onBindViewHolder(viewHolder: PreviousTranslationViewHolder, position: Int) {
-        viewHolder.date.text = translations[position].date.toString()
+        viewHolder.date.text = translations[position].date.format(
+                DateTimeFormatter.ofLocalizedDate(
+                        FormatStyle.SHORT
+                )
+        )
         viewHolder.originalText.text = translations[position].originalText
     }
 
@@ -47,6 +51,19 @@ class PreviousTranslationAdapter(private var translations: List<Translation>, pr
 
     fun setData(newTranslations: List<Translation>) {
         translations = newTranslations
+        notifyDataSetChanged()
+    }
+
+    fun sortTranslations(order: SortOrder){
+        if (order == SortOrder.ASC){
+            translations = translations.sortedBy {
+                it.date
+            }
+        } else {
+            translations = translations.sortedByDescending {
+                it.date
+            }
+        }
         notifyDataSetChanged()
     }
 
