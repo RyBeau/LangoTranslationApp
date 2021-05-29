@@ -192,12 +192,11 @@ class NotificationService : Service() {
         val mNotificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         val notifications = mNotificationManager.activeNotifications
 
-//        for (notification in notifications) {
-//            if (notification.id == NOTIFICATION_ID) {
-//                // Do something.
-//                return
-//            }
-//        }
+        for (notification in notifications) {
+            if (notification.id == NOTIFICATION_ID) {
+                return
+            }
+        }
 
         var builder = NotificationCompat.Builder(this, getString(R.string.NOTIFICATION_CHANNEL_ID))
             .setSmallIcon(R.mipmap.ic_launcher_round)
