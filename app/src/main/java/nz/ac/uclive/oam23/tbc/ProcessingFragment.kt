@@ -69,10 +69,6 @@ class ProcessingFragment : NoNavFragment() {
 
     override fun onStop() {
         super.onStop()
-//        val file = File(path)
-//        if (file.exists()){
-//            file.delete()
-//        }
         requestQueue.cancelAll(getString(R.string.TRANSLATION_API_REQUEST_TAG))
     }
 
@@ -94,6 +90,7 @@ class ProcessingFragment : NoNavFragment() {
                                 Toast.LENGTH_LONG
                         ).show()
                         e.printStackTrace()
+                        deleteImage()
                         requireActivity().onBackPressed()
                     }
                 }
@@ -102,10 +99,18 @@ class ProcessingFragment : NoNavFragment() {
         }
     }
 
+    private fun deleteImage(){
+        val file = File(path)
+        if (file.exists()){
+            file.delete()
+        }
+    }
+
     private fun processVisionText(text: Text){
         val blocks = text.textBlocks
         if(blocks.size < 1){
             Toast.makeText(requireActivity(), getString(R.string.no_text_found), Toast.LENGTH_LONG).show()
+            deleteImage()
             requireActivity().onBackPressed()
         } else {
             val stringBuilder = StringBuilder()
@@ -138,7 +143,7 @@ class ProcessingFragment : NoNavFragment() {
                             Log.d("Text", json.get(0).asJsonObject.get("translations").asJsonArray.get(0).asJsonObject.get("text").asString)
 
                             val bundle = bundleOf("untranslatedText" to text, "translatedText" to json.get(0).asJsonObject.get("translations").asJsonArray.get(0).asJsonObject.get("text").asString)
-                            findNavController().navigate(R.id.action_processingFragment_to_navigation_saveEdit, bundle)
+                            view?.let { it-> deleteImage(); Navigation.findNavController(it).navigate(R.id.action_processingFragment_to_navigation_saveEdit, bundle)}
 
                         } else {
                             Log.d("req", "Response is null")

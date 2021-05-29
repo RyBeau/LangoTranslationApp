@@ -155,7 +155,8 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="5dp"
             android:layout_weight="1"
-            android:text="@android:string/cancel" />
+            android:text="@android:string/cancel"
+            />
 
         <Button
             android:id="@+id/deleteTranslationButton"
@@ -164,7 +165,8 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="5dp"
             android:layout_weight="1"
-            android:text="@string/delete" />
+            android:text="@string/delete"
+            />
 
         <Button
             android:id="@+id/saveEditTranslationButton"
