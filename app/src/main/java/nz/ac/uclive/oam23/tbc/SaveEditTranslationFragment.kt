@@ -48,6 +48,7 @@ class SaveEditTranslationFragment : NoNavFragment() {
     private lateinit var latLng: LatLng
     private var existingTranslation: Translation? = null
     private var currentSavedInstanceState: Bundle? = null
+    private var usingCurrentLocation: Boolean = true
 
     private var originalText: String? = null
     private var translatedText: String? = null
@@ -155,12 +156,7 @@ class SaveEditTranslationFragment : NoNavFragment() {
                     viewModel.addTranslation(translation)
                             findNavController().navigate(R.id.action_navigation_saveEdit_to_navigation_home)
                 } else {
-                    convertLocationToLatLng(locationString)?.let { ll -> translation.locationLatLng = ll }
-                    if (validateTranslation(translation.originalText, translation.locationString, translation.locationLatLng)){
-                        findNavController().navigate(R.id.action_navigation_saveEdit_to_navigation_home)
-                    } else {
-                        createLongToast(getString(R.string.invalid_entries))
-                    }
+                    createLongToast(getString(R.string.invalid_entries))
                 }
             }
         } else {
@@ -179,6 +175,7 @@ class SaveEditTranslationFragment : NoNavFragment() {
         locationEdit.onFocusChangeListener = View.OnFocusChangeListener { _, hasFocus ->
             if (!hasFocus){
                 val newLatLng = convertLocationToLatLng(locationEdit.text.toString())
+                usingCurrentLocation = false
                 if (newLatLng != null) {
                     latLng = newLatLng
                 }
@@ -215,7 +212,7 @@ class SaveEditTranslationFragment : NoNavFragment() {
     }
 
     private fun validateLocation(locationString: String, translationLatLng: LatLng): Boolean{
-        return convertLocationToLatLng(locationString) == translationLatLng
+        return convertLocationToLatLng(locationString) == translationLatLng || usingCurrentLocation
     }
 
     private fun convertLocationToLatLng(locationString: String): LatLng? {
@@ -285,6 +282,7 @@ class SaveEditTranslationFragment : NoNavFragment() {
     private fun setCurrentLocation(){
         val location = requireView().findViewById<EditText>(R.id.locationEdit)
         val locationClient = LocationServices.getFusedLocationProviderClient(requireContext())
+        usingCurrentLocation = true
         locationClient.lastLocation.addOnSuccessListener {
             latLng = LatLng(it.latitude, it.longitude)
             val geocoder = Geocoder(context, Locale.getDefault())
