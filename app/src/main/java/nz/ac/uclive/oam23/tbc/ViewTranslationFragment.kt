@@ -68,7 +68,7 @@ class ViewTranslationFragment : NoNavFragment() {
     }
 
     fun composeMmsMessage(message: String) {
-        val intent = Intent(Intent.ACTION_SEND).apply {
+        val intent = Intent(Intent.ACTION_VIEW).apply {
             setData(Uri.parse("mms:"))
             putExtra("sms_body", message)
         }
