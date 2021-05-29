@@ -31,9 +31,6 @@ class MainActivity : AppCompatActivity() {
             Location.SAVE_EDIT_TRANSLATION -> {
                 onBackConfirmation()
             }
-            Location.PROCESSING -> {
-                Toast.makeText(this,getString(R.string.back_not_allowed), Toast.LENGTH_SHORT).show()
-            }
             else -> {
                 super.onBackPressed()
             }

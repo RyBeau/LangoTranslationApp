@@ -234,6 +234,7 @@ class HomeFragment : NavFragment() {
         val view = inflater.inflate(R.layout.fragment_home, container, false)
         val mainActivity = activity as MainActivity
         mainActivity.setLocation(MainActivity.Location.HOME)
+        mainActivity.supportActionBar!!.show()
 
         //Set up image capturing
         val cameraButton = view.findViewById<FloatingActionButton>(R.id.cameraButton)
