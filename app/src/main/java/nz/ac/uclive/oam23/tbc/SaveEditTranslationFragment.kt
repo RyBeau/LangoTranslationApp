@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.location.Geocoder
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -375,7 +374,7 @@ class SaveEditTranslationFragment : NoNavFragment() {
     }
 
     private fun sendRequest(text: String) {
-        val url = "https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&to=en"
+        val url = getString(R.string.TRANSLATION_URL)
         val request: StringRequest =
                 object : StringRequest(Method.POST, url, Response.Listener<String?> { response ->
                     var translationResponse: String

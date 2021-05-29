@@ -1,29 +1,22 @@
 package nz.ac.uclive.oam23.tbc
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.Toast
 import android.widget.ToggleButton
 import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
-import androidx.navigation.Navigation
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.gms.maps.model.LatLng
-import java.time.LocalDate
 
 /**
  * Fragment for viewing previous translations
  */
 class PreviousTranslationsFragment : NavFragment(), PreviousTranslationAdapter.OnPreviousTranslationListener {
 
-    private val viewModel: TranslationsViewModel by activityViewModels() {
+    private val viewModel: TranslationsViewModel by activityViewModels {
         TranslationsViewModelFactory((activity?.application as TBCApplication).repository)
     }
 
