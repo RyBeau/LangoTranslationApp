@@ -14,6 +14,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
+import androidx.navigation.fragment.findNavController
 import com.android.volley.AuthFailureError
 import com.android.volley.RequestQueue
 import com.android.volley.Response
@@ -32,20 +33,11 @@ import java.util.*
 
 
 class ProcessingFragment : NoNavFragment() {
-    private val viewModel: TranslationsViewModel by activityViewModels() {
-        TranslationsViewModelFactory((activity?.application as TBCApplication).repository)
-    }
 
-
-    val recogniser = TextRecognition.getClient()
-    lateinit var currentAction: TextView
-    lateinit var path: String
-    lateinit var requestQueue: RequestQueue
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        savedInstanceState?.get("photoPath")?.let { Log.d("Test", it.toString()) }
-    }
+    private val recogniser = TextRecognition.getClient()
+    private lateinit var currentAction: TextView
+    private lateinit var path: String
+    private lateinit var requestQueue: RequestQueue
 
     override fun onCreateView(
             inflater: LayoutInflater, container: ViewGroup?,
@@ -77,10 +69,10 @@ class ProcessingFragment : NoNavFragment() {
 
     override fun onStop() {
         super.onStop()
-        val file = File(path)
-        if (file.exists()){
-            file.delete()
-        }
+//        val file = File(path)
+//        if (file.exists()){
+//            file.delete()
+//        }
         requestQueue.cancelAll(getString(R.string.TRANSLATION_API_REQUEST_TAG))
     }
 
@@ -126,8 +118,10 @@ class ProcessingFragment : NoNavFragment() {
     }
 
     private fun translateText(text: String){
-        currentAction.text = getString(R.string.translating_text)
-        sendRequest(text)
+        if (context != null){
+            currentAction.text = getString(R.string.translating_text)
+            sendRequest(text)
+        }
     }
 
     private fun sendRequest(text: String) {
@@ -144,7 +138,7 @@ class ProcessingFragment : NoNavFragment() {
                             Log.d("Text", json.get(0).asJsonObject.get("translations").asJsonArray.get(0).asJsonObject.get("text").asString)
 
                             val bundle = bundleOf("untranslatedText" to text, "translatedText" to json.get(0).asJsonObject.get("translations").asJsonArray.get(0).asJsonObject.get("text").asString)
-                            Navigation.findNavController(requireView()).navigate(R.id.action_processingFragment_to_navigation_saveEdit, bundle)
+                            findNavController().navigate(R.id.action_processingFragment_to_navigation_saveEdit, bundle)
 
                         } else {
                             Log.d("req", "Response is null")
