@@ -5,7 +5,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.os.Build
 
-class TBCApplication: Application() {
+class LangoApplication: Application() {
 
     override fun onCreate() {
         super.onCreate()

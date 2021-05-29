@@ -24,7 +24,7 @@ class ViewTranslationFragment : NoNavFragment() {
     private lateinit var translation: Translation
 
     private val viewModel: TranslationsViewModel by activityViewModels {
-        TranslationsViewModelFactory((activity?.application as TBCApplication).repository)
+        TranslationsViewModelFactory((activity?.application as LangoApplication).repository)
     }
 
     /**
