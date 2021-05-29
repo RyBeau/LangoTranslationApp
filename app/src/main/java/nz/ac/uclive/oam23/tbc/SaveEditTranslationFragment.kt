@@ -4,9 +4,11 @@ import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.location.Geocoder
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
@@ -118,7 +120,7 @@ class SaveEditTranslationFragment : NoNavFragment() {
             createLongToast(getString(R.string.error))
             requireActivity().onBackPressed()
         }
-        setLocationChangeCallback(view)
+        setFocusChangeCallbacks(view)
         setButtonCallbacks(view)
     }
 
@@ -168,14 +170,21 @@ class SaveEditTranslationFragment : NoNavFragment() {
         }
     }
 
-    private fun setLocationChangeCallback(view: View){
+    private fun setFocusChangeCallbacks(view: View){
         val locationEdit =  view.findViewById<EditText>(R.id.locationEdit)
-        locationEdit.onFocusChangeListener = View.OnFocusChangeListener { v, hasFocus ->
+        locationEdit.onFocusChangeListener = View.OnFocusChangeListener { _, hasFocus ->
             if (!hasFocus){
                 val newLatLng = convertLocationToLatLng(locationEdit.text.toString())
                 if (newLatLng != null) {
                     latLng = newLatLng
                 }
+            }
+        }
+        val saveButton =  view.findViewById<Button>(R.id.saveEditTranslationButton)
+        saveButton.onFocusChangeListener = View.OnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) run {
+                val inputManager = (requireActivity().getSystemService(android.app.Activity.INPUT_METHOD_SERVICE) as InputMethodManager)
+                inputManager.hideSoftInputFromWindow(view.windowToken, 0)
             }
         }
     }
@@ -231,20 +240,24 @@ class SaveEditTranslationFragment : NoNavFragment() {
     private fun updateExistingTranslation(view: View) {
         val locationString = view.findViewById<EditText>(R.id.locationEdit).text.toString()
         val note = view.findViewById<EditText>(R.id.noteEdit).text.toString()
-        val newTranslation = existingTranslation
+        var changeOccurred = false
         if(locationString != existingTranslation?.locationString){
             if (validateLocation(locationString)){
-                newTranslation?.locationLatLng = latLng
-                newTranslation?.locationString = locationString
+                existingTranslation?.locationLatLng = latLng
+                existingTranslation?.locationString = locationString
+                changeOccurred = true
             } else {
                 return
             }
         }
         if (note != existingTranslation?.note){
-            newTranslation?.note = note
+            existingTranslation?.note = note
+            changeOccurred = true
+            Log.d("Test:", "Note was updated")
         }
-        if (newTranslation != existingTranslation){
-            newTranslation?.let { it1 -> viewModel.editTranslation(it1) }
+        if (changeOccurred){
+            Log.d("Test:", "Translation is being updated")
+            existingTranslation?.let { it1 -> viewModel.editTranslation(it1) }
         }
         (requireActivity() as MainActivity).translationSaved()
     }
