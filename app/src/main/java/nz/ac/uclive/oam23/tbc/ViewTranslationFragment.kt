@@ -3,8 +3,6 @@ package nz.ac.uclive.oam23.tbc
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,7 +11,6 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
-import androidx.navigation.Navigation
 import androidx.navigation.findNavController
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
@@ -26,7 +23,7 @@ class ViewTranslationFragment : NoNavFragment() {
 
     private lateinit var translation: Translation
 
-    private val viewModel: TranslationsViewModel by activityViewModels() {
+    private val viewModel: TranslationsViewModel by activityViewModels {
         TranslationsViewModelFactory((activity?.application as TBCApplication).repository)
     }
 
@@ -62,17 +59,14 @@ class ViewTranslationFragment : NoNavFragment() {
             view.findNavController().navigate(R.id.action_navigation_viewTranslation_to_navigation_saveEdit, bundle)
         }
         view.findViewById<Button>(R.id.shareTranslationButton).setOnClickListener {
-            var message = "Wow! I just translated this image using Lango!\n"
-            message += "Original Text:" + translation.originalText + "\n"
-            message += "Translation: " + translation.translatedText + "\n"
-            message += "Date: " + translation.date + "\n"
+            val message = getString(R.string.share_message, translation.originalText, translation.translatedText, translation.date.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT)))
             composeMmsMessage(message)
          }
     }
 
-    fun composeMmsMessage(message: String) {
+    private fun composeMmsMessage(message: String) {
         val intent = Intent(Intent.ACTION_VIEW).apply {
-            setData(Uri.parse("mms:"))
+            data = Uri.parse("mms:")
             putExtra("sms_body", message)
         }
         startActivity(intent)

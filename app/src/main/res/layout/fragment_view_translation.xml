@@ -98,6 +98,7 @@
                 android:layout_height="wrap_content"
                 android:background="@drawable/border"
                 android:minHeight="75dp"
+                android:padding="3dp"
                 android:textSize="16sp" />
 
             <TextView
@@ -115,6 +116,7 @@
                 android:layout_height="wrap_content"
                 android:background="@drawable/border"
                 android:minHeight="75dp"
+                android:padding="3dp"
                 android:textSize="16sp" />
         </LinearLayout>
     </ScrollView>

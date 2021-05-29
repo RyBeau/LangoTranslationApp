@@ -5,7 +5,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
@@ -55,16 +54,20 @@ class PreviousTranslationAdapter(private var translations: List<Translation>, pr
     }
 
     fun sortTranslations(order: SortOrder){
-        if (order == SortOrder.ASC){
-            translations = translations.sortedBy {
+        translations = if (order == SortOrder.ASC){
+            translations.sortedBy {
                 it.date
             }
         } else {
-            translations = translations.sortedByDescending {
+            translations.sortedByDescending {
                 it.date
             }
         }
         notifyDataSetChanged()
+    }
+
+    fun getTranslations(): List<Translation>{
+        return translations
     }
 
 

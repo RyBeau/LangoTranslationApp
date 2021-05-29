@@ -7,20 +7,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
 import androidx.core.os.bundleOf
-import androidx.core.view.isVisible
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
-import androidx.navigation.fragment.findNavController
 import com.android.volley.AuthFailureError
 import com.android.volley.RequestQueue
 import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.gson.JsonParser
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.Text
@@ -130,7 +124,7 @@ class ProcessingFragment : NoNavFragment() {
     }
 
     private fun sendRequest(text: String) {
-        val url = "https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&to=en"
+        val url = getString(R.string.TRANSLATION_URL)
         val request: StringRequest =
                 object : StringRequest(Method.POST, url,
                     Response.Listener<String?> { response ->

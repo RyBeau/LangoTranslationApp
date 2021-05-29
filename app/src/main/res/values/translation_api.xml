@@ -2,4 +2,5 @@
 <resources>
     <string name="TRANSLATION_API_REQUEST_TAG">translation</string>
     <string name="TRANSLATION_API_KEY">d4c58350bbc547b8a7d98270627274e5</string>
+    <string name="TRANSLATION_URL">https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&amp;to=en</string>
 </resources>

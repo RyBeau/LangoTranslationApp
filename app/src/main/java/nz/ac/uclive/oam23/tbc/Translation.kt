@@ -18,5 +18,5 @@ class Translation(
 ) {
     @PrimaryKey(autoGenerate = true) var id: Long = 0
 
-    override fun toString() = date.toString() + ": " + originalText
+    override fun toString() = "$date: $originalText"
 }

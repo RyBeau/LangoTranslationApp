@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.location.Geocoder
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -49,6 +48,7 @@ class SaveEditTranslationFragment : NoNavFragment() {
     private lateinit var latLng: LatLng
     private var existingTranslation: Translation? = null
     private var currentSavedInstanceState: Bundle? = null
+    private var usingCurrentLocation: Boolean = true
 
     private var originalText: String? = null
     private var translatedText: String? = null
@@ -152,7 +152,7 @@ class SaveEditTranslationFragment : NoNavFragment() {
                     latLng,
                     note
                 )
-                if (validateTranslation(originalText, locationString)){
+                if (validateTranslation(translation.originalText, translation.locationString, translation.locationLatLng)){
                     viewModel.addTranslation(translation)
                             findNavController().navigate(R.id.action_navigation_saveEdit_to_navigation_home)
                 } else {
@@ -175,6 +175,7 @@ class SaveEditTranslationFragment : NoNavFragment() {
         locationEdit.onFocusChangeListener = View.OnFocusChangeListener { _, hasFocus ->
             if (!hasFocus){
                 val newLatLng = convertLocationToLatLng(locationEdit.text.toString())
+                usingCurrentLocation = false
                 if (newLatLng != null) {
                     latLng = newLatLng
                 }
@@ -206,12 +207,12 @@ class SaveEditTranslationFragment : NoNavFragment() {
         requireView().findViewById<Button>(R.id.cancelEditTranslationButton).isFocusableInTouchMode = bool
     }
 
-    private fun validateTranslation(originalTextString: String, locationString: String): Boolean {
-        return originalTextString.isNotEmpty() && validateLocation(locationString)
+    private fun validateTranslation(originalTextString: String, locationString: String, translationLatLng: LatLng): Boolean {
+        return originalTextString.isNotEmpty() && validateLocation(locationString, translationLatLng)
     }
 
-    private fun validateLocation(locationString: String): Boolean{
-        return convertLocationToLatLng(locationString) == latLng
+    private fun validateLocation(locationString: String, translationLatLng: LatLng): Boolean{
+        return convertLocationToLatLng(locationString) == translationLatLng || usingCurrentLocation
     }
 
     private fun convertLocationToLatLng(locationString: String): LatLng? {
@@ -259,7 +260,7 @@ class SaveEditTranslationFragment : NoNavFragment() {
         val note = view.findViewById<EditText>(R.id.noteEdit).text.toString()
         var changeOccurred = false
         if(locationString != existingTranslation?.locationString){
-            if (validateLocation(locationString)){
+            if (validateLocation(locationString, latLng)){
                 existingTranslation?.locationLatLng = latLng
                 existingTranslation?.locationString = locationString
                 changeOccurred = true
@@ -281,6 +282,7 @@ class SaveEditTranslationFragment : NoNavFragment() {
     private fun setCurrentLocation(){
         val location = requireView().findViewById<EditText>(R.id.locationEdit)
         val locationClient = LocationServices.getFusedLocationProviderClient(requireContext())
+        usingCurrentLocation = true
         locationClient.lastLocation.addOnSuccessListener {
             latLng = LatLng(it.latitude, it.longitude)
             val geocoder = Geocoder(context, Locale.getDefault())
@@ -375,7 +377,7 @@ class SaveEditTranslationFragment : NoNavFragment() {
     }
 
     private fun sendRequest(text: String) {
-        val url = "https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&to=en"
+        val url = getString(R.string.TRANSLATION_URL)
         val request: StringRequest =
                 object : StringRequest(Method.POST, url, Response.Listener<String?> { response ->
                     var translationResponse: String
