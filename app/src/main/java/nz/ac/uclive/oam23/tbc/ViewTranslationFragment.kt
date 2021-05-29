@@ -1,6 +1,7 @@
 package nz.ac.uclive.oam23.tbc
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -41,7 +42,7 @@ class ViewTranslationFragment : NoNavFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val key = requireArguments().getLong("translationKey")
+        val key = requireArguments().getLong(getString(R.string.translation_bundle_key))
         if (key == (-1).toLong()){
             Toast.makeText(
                     requireActivity(),
@@ -55,7 +56,7 @@ class ViewTranslationFragment : NoNavFragment() {
             fillTextViews()
         })
         view.findViewById<Button>(R.id.editTranslationButton).setOnClickListener {
-            val bundle = bundleOf("translationKey" to translation.id)
+            val bundle = bundleOf(getString(R.string.translation_bundle_key) to translation.id)
             view.findNavController().navigate(R.id.action_navigation_viewTranslation_to_navigation_saveEdit, bundle)
         }
     }

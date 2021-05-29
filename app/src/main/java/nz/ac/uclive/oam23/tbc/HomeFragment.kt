@@ -4,11 +4,15 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
+import android.content.IntentSender
 import android.content.pm.PackageManager
+import android.location.Location
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
+import android.os.Looper
 import android.provider.MediaStore
+import android.util.Log.d
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,12 +24,15 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.observe
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
+import com.google.android.gms.common.api.ResolvableApiException
+import com.google.android.gms.location.*
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.tasks.Task
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.io.File
 import java.io.IOException
@@ -49,7 +56,13 @@ class HomeFragment : NavFragment() {
     val REQUEST_IMAGE_CAPTURE = 1
     val REQUEST_FINE_LOCATION = 2
     val REQUEST_CAMERA_STORAGE_PERMISSIONS = 3
+    val REQUEST_CHECK_SETTINGS = 4
     lateinit var googleMapRef: GoogleMap
+    lateinit var fusedLocationClient: FusedLocationProviderClient
+    lateinit var location: Location
+    lateinit var locationRequest: LocationRequest
+    lateinit var locationCallback: LocationCallback
+    var requestingLocations = false
 
 
     lateinit var currentPhotoPath: String
@@ -74,6 +87,9 @@ class HomeFragment : NavFragment() {
                     val bundle = bundleOf("photoPath" to currentPhotoPath)
                     view?.findNavController()?.navigate(R.id.action_navigation_home_to_processingFragment, bundle)
                 }
+            }
+            REQUEST_CHECK_SETTINGS -> {
+                Toast.makeText(requireActivity(), R.string.check_camera_settings, Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -226,6 +242,8 @@ class HomeFragment : NavFragment() {
         super.onViewCreated(view, savedInstanceState)
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
         mapFragment?.getMapAsync(callback)
+
+        startLocationUpdates()
     }
 
     override fun onCreateView(
@@ -235,6 +253,34 @@ class HomeFragment : NavFragment() {
         val view = inflater.inflate(R.layout.fragment_home, container, false)
         val mainActivity = activity as MainActivity
         mainActivity.setLocation(MainActivity.Location.HOME)
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
+        locationCallback = object : LocationCallback() {
+            override fun onLocationResult(locationResult: LocationResult?) {
+                locationResult ?: return
+                for (location in locationResult.locations) {
+                    // do something with the location :)
+                    d("location", location.latitude.toString() + " " + location.longitude.toString())
+                }
+            }
+        }
+
+        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+        } else {
+            fusedLocationClient.lastLocation.addOnSuccessListener { recentLocation: Location? ->
+                if (recentLocation != null) {
+                    location = recentLocation
+                }
+            }
+        }
+        setLocationRequest()
 
         //Set up image capturing
         val cameraButton = view.findViewById<FloatingActionButton>(R.id.cameraButton)
@@ -252,5 +298,63 @@ class HomeFragment : NavFragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         requestPermissions(PERMISSIONS_REQUIRED, PERMISSIONS_REQUEST_CODE)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        /*if (requestingLocationUpdates)*/ startLocationUpdates()   // if the user has location notifs turned on
+    }
+
+    override fun onStop() {
+        super.onStop()
+        stopLocationUpdates()
+    }
+
+    private fun setLocationRequest() {
+        locationRequest = LocationRequest.create()
+        locationRequest.setInterval(600).setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY)
+
+        val builder = LocationSettingsRequest.Builder().addLocationRequest(locationRequest)
+
+        val client: SettingsClient = LocationServices.getSettingsClient(context)
+        val task: Task<LocationSettingsResponse> = client.checkLocationSettings(builder.build())
+
+        task.addOnSuccessListener { locationSettingsResponse ->
+            // make requests
+
+        }
+        task.addOnFailureListener { exception ->
+            if (exception is ResolvableApiException) {
+                try {
+                    exception.startResolutionForResult(activity, REQUEST_CHECK_SETTINGS)
+                } catch (sendEx: IntentSender.SendIntentException) {
+                    // ignore the error :(
+                }
+            }
+        }
+    }
+
+    private fun startLocationUpdates() {
+        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return
+        }
+        if (!requestingLocations && ::fusedLocationClient.isInitialized && ::locationRequest.isInitialized && ::locationCallback.isInitialized) {
+            fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
+            requestingLocations = true
+        }
+    }
+
+    private fun stopLocationUpdates() {
+        if (::fusedLocationClient.isInitialized && ::locationCallback.isInitialized) {
+            fusedLocationClient.removeLocationUpdates(locationCallback)
+            requestingLocations = false
+        }
     }
 }

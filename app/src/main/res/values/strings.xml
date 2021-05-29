@@ -52,5 +52,13 @@
 
     <string name="theme_header">Themes</string>
     <string name="theme_title">Select a theme</string>
+    <string name="check_camera_settings">Please check your device\'s camera settings</string>
+    <string name="NOTIFICATION_CHANNEL_ID">locationCheckServiceChannel</string>
+    <string name="foreground_notif_msg">Searching for nearby translations</string>
+    <string name="service_title">Location Service</string>
+    <string name="notification_title">Nearby translations</string>
+    <string name="notification_content">You are currently in the area of words you have previously translated</string>
+    <string name="translation_bundle_key">translationKey</string>
+    <string name="service_channel_name">Location Check Service Channel</string>
 
 </resources>
