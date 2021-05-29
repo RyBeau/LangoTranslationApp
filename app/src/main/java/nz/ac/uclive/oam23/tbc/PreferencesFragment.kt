@@ -22,8 +22,9 @@ class PreferencesFragment : PreferenceFragmentCompat() {
         //Setup a shared preference listener for hpwAddress and restart transport
         val listener: SharedPreferences.OnSharedPreferenceChangeListener =
                 SharedPreferences.OnSharedPreferenceChangeListener { _: SharedPreferences, key: String ->
-                    if (key == "themes") {
-                        activity?.let { setTheme(it) }
+                    when (key) {
+                        "themes" -> activity?.let { setTheme(it) }
+                        "notifications" -> activity?.let { setNotifications(it) }
                     }
                 }
         prefs.registerOnSharedPreferenceChangeListener(listener)
