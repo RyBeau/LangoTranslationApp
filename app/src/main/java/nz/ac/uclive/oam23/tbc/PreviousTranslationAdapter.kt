@@ -66,6 +66,10 @@ class PreviousTranslationAdapter(private var translations: List<Translation>, pr
         notifyDataSetChanged()
     }
 
+    fun getTranslations(): List<Translation>{
+        return translations
+    }
+
 
     interface OnPreviousTranslationListener {
         fun onTranslationClick(position: Int)

@@ -20,6 +20,7 @@ class PreviousTranslationsFragment : NavFragment(), PreviousTranslationAdapter.O
         TranslationsViewModelFactory((activity?.application as TBCApplication).repository)
     }
 
+    private lateinit var translationAdapter: PreviousTranslationAdapter
     private lateinit var currentSort: PreviousTranslationAdapter.SortOrder
 
     override fun onCreateView(
@@ -30,7 +31,7 @@ class PreviousTranslationsFragment : NavFragment(), PreviousTranslationAdapter.O
         mainActivity.setLocation(MainActivity.Location.PREVIOUS_TRANSLATIONS)
 
         val view =  inflater.inflate(R.layout.fragment_previous_translations, container, false)
-        val translationAdapter = PreviousTranslationAdapter(listOf(), this)
+        translationAdapter = PreviousTranslationAdapter(listOf(), this)
         val recyclerView = view.findViewById<RecyclerView>(R.id.previousTranslationsViewer)
 
         viewModel.translationsList.observe(viewLifecycleOwner, { newTranslations ->
@@ -53,7 +54,7 @@ class PreviousTranslationsFragment : NavFragment(), PreviousTranslationAdapter.O
 
     override fun onTranslationClick(position: Int) {
         viewModel.setSelectedIndex(position)
-        val bundle = bundleOf("translationKey" to (viewModel.translationsList.value!![position].id))
+        val bundle = bundleOf("translationKey" to (translationAdapter.getTranslations()[position].id))
         findNavController().navigate(R.id.action_navigation_previous_to_navigation_viewTranslation, bundle)
     }
 
