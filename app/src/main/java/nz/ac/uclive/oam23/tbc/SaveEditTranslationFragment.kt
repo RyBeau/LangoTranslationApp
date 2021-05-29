@@ -151,11 +151,16 @@ class SaveEditTranslationFragment : NoNavFragment() {
                     latLng,
                     note
                 )
-                if (validateTranslation(originalText, locationString)){
+                if (validateTranslation(translation.originalText, translation.locationString, translation.locationLatLng)){
                     viewModel.addTranslation(translation)
                             findNavController().navigate(R.id.action_navigation_saveEdit_to_navigation_home)
                 } else {
-                    createLongToast(getString(R.string.invalid_entries))
+                    convertLocationToLatLng(locationString)?.let { ll -> translation.locationLatLng = ll }
+                    if (validateTranslation(translation.originalText, translation.locationString, translation.locationLatLng)){
+                        findNavController().navigate(R.id.action_navigation_saveEdit_to_navigation_home)
+                    } else {
+                        createLongToast(getString(R.string.invalid_entries))
+                    }
                 }
             }
         } else {
@@ -205,12 +210,12 @@ class SaveEditTranslationFragment : NoNavFragment() {
         requireView().findViewById<Button>(R.id.cancelEditTranslationButton).isFocusableInTouchMode = bool
     }
 
-    private fun validateTranslation(originalTextString: String, locationString: String): Boolean {
-        return originalTextString.isNotEmpty() && validateLocation(locationString)
+    private fun validateTranslation(originalTextString: String, locationString: String, translationLatLng: LatLng): Boolean {
+        return originalTextString.isNotEmpty() && validateLocation(locationString, translationLatLng)
     }
 
-    private fun validateLocation(locationString: String): Boolean{
-        return convertLocationToLatLng(locationString) == latLng
+    private fun validateLocation(locationString: String, translationLatLng: LatLng): Boolean{
+        return convertLocationToLatLng(locationString) == translationLatLng
     }
 
     private fun convertLocationToLatLng(locationString: String): LatLng? {
@@ -258,7 +263,7 @@ class SaveEditTranslationFragment : NoNavFragment() {
         val note = view.findViewById<EditText>(R.id.noteEdit).text.toString()
         var changeOccurred = false
         if(locationString != existingTranslation?.locationString){
-            if (validateLocation(locationString)){
+            if (validateLocation(locationString, latLng)){
                 existingTranslation?.locationLatLng = latLng
                 existingTranslation?.locationString = locationString
                 changeOccurred = true
