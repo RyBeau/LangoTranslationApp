@@ -178,15 +178,32 @@ class SaveEditTranslationFragment : NoNavFragment() {
                 if (newLatLng != null) {
                     latLng = newLatLng
                 }
+                setFocusableButtons(false)
+            } else {
+                setFocusableButtons(true)
             }
         }
         val saveButton =  view.findViewById<Button>(R.id.saveEditTranslationButton)
-        saveButton.onFocusChangeListener = View.OnFocusChangeListener { _, hasFocus ->
+        val deleteButton =  view.findViewById<Button>(R.id.deleteTranslationButton)
+        val cancelButton =  view.findViewById<Button>(R.id.cancelEditTranslationButton)
+        setButtonToCloseKeyboard(saveButton)
+        setButtonToCloseKeyboard(deleteButton)
+        setButtonToCloseKeyboard(cancelButton)
+    }
+
+    private fun setButtonToCloseKeyboard(button: Button){
+        button.onFocusChangeListener = View.OnFocusChangeListener { _, hasFocus ->
             if (hasFocus) run {
                 val inputManager = (requireActivity().getSystemService(android.app.Activity.INPUT_METHOD_SERVICE) as InputMethodManager)
-                inputManager.hideSoftInputFromWindow(view.windowToken, 0)
+                inputManager.hideSoftInputFromWindow(view?.windowToken, 0)
             }
         }
+    }
+
+    private fun setFocusableButtons(bool: Boolean){
+        requireView().findViewById<Button>(R.id.saveEditTranslationButton).isFocusableInTouchMode = bool
+        requireView().findViewById<Button>(R.id.deleteTranslationButton).isFocusableInTouchMode = bool
+        requireView().findViewById<Button>(R.id.cancelEditTranslationButton).isFocusableInTouchMode = bool
     }
 
     private fun validateTranslation(originalTextString: String, locationString: String): Boolean {
