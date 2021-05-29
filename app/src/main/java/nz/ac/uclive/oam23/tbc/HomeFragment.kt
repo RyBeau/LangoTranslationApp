@@ -150,18 +150,16 @@ class HomeFragment : NavFragment() {
                 takePictureIntent.resolveActivity(it)?.also {
                     // Create the File where the photo should go
                     try {
-                        val photoFile: File? = createImageFileName()
-                        if (photoFile !== null) {
-                            val photoURI: Uri? = requireActivity().let { context ->
-                                FileProvider.getUriForFile(
-                                        context,
-                                        "nz.ac.uclive.oam23.tbc.android.fileprovider",
-                                        photoFile
-                                )
-                            }
-                            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
-                            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
+                        val photoFile: File = createImageFileName()
+                        val photoURI: Uri? = requireActivity().let { context ->
+                            FileProvider.getUriForFile(
+                                    context,
+                                    "nz.ac.uclive.oam23.tbc.android.fileprovider",
+                                    photoFile
+                            )
                         }
+                        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
+                        startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
                     } catch (e: IOException) {
                         // Error occurred while creating the File
                         Toast.makeText(requireActivity(), getString(R.string.file_error), Toast.LENGTH_LONG).show()
