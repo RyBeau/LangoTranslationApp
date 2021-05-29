@@ -12,6 +12,7 @@ import android.os.Bundle
 import android.os.Environment
 import android.os.Looper
 import android.provider.MediaStore
+import android.util.Log
 import android.util.Log.d
 import android.view.LayoutInflater
 import android.view.View
@@ -228,7 +229,7 @@ class HomeFragment : NavFragment() {
     /**
      * Requests for the users camera permissions.
      */
-    fun requestCameraPermission() {
+    private fun requestCameraPermission() {
         ActivityCompat.requestPermissions(requireActivity(),
                 arrayOf(Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE),
                 REQUEST_CAMERA_STORAGE_PERMISSIONS)
@@ -259,20 +260,13 @@ class HomeFragment : NavFragment() {
             override fun onLocationResult(locationResult: LocationResult?) {
                 locationResult ?: return
                 for (location in locationResult.locations) {
-                    // do something with the location :)
                     d("location", location.latitude.toString() + " " + location.longitude.toString())
                 }
             }
         }
 
         if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
+            d("Permission Issue", "Permission Issue")
         } else {
             fusedLocationClient.lastLocation.addOnSuccessListener { recentLocation: Location? ->
                 if (recentLocation != null) {
@@ -319,10 +313,6 @@ class HomeFragment : NavFragment() {
         val client: SettingsClient = LocationServices.getSettingsClient(requireContext())
         val task: Task<LocationSettingsResponse> = client.checkLocationSettings(builder.build())
 
-        task.addOnSuccessListener {
-            // make requests
-
-        }
         task.addOnFailureListener { exception ->
             if (exception is ResolvableApiException) {
                 try {
