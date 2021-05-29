@@ -23,13 +23,4 @@
     </PreferenceCategory>
 
 
-    <PreferenceCategory app:title="@string/feedback_header">
-        <Preference
-            app:key="feedback"
-            app:summary="@string/feedback_description"
-            app:title="@string/feedback_title" />
-
-    </PreferenceCategory>
-
-
 </PreferenceScreen>

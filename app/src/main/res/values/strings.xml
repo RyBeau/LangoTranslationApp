@@ -43,9 +43,6 @@
     <string name="back_not_allowed">Back Not Allowed</string>
     <string name="delete_confirmation">Are you sure you want to delete this translation?</string>
     <!-- Preferences -->
-    <string name="feedback_header">Feedback</string>
-    <string name="feedback_description">Report technical issues or suggest new features</string>
-    <string name="feedback_title">Report technical issues or suggest new features</string>
 
     <string name="notifications_header">Notifications</string>
     <string name="notifications_title">Enable Range Notifications</string>
