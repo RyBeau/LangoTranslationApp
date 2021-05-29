@@ -198,6 +198,12 @@ class NotificationService : Service() {
             }
         }
 
+        // Create an explicit intent for an Activity in your app
+        val intent = Intent(this, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+        val pendingIntent: PendingIntent = PendingIntent.getActivity(this, 0, intent, 0)
+
         var builder = NotificationCompat.Builder(this, getString(R.string.NOTIFICATION_CHANNEL_ID))
             .setSmallIcon(R.mipmap.ic_launcher_round)
             .setContentTitle(getString(R.string.notification_title))
@@ -207,6 +213,7 @@ class NotificationService : Service() {
                     .bigText(getString(R.string.notification_content))
             )
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setContentIntent(pendingIntent)
 
         with(NotificationManagerCompat.from(this)) {
             notify(NOTIFICATION_ID, builder.build())
