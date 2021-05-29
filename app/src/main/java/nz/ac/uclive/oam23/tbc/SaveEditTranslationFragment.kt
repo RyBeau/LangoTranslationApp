@@ -41,13 +41,14 @@ class SaveEditTranslationFragment : NoNavFragment() {
         NEW_MODE
     }
 
-    private val viewModel: TranslationsViewModel by activityViewModels() {
+    private val viewModel: TranslationsViewModel by activityViewModels {
         TranslationsViewModelFactory((activity?.application as TBCApplication).repository)
     }
 
     private lateinit var fragmentMode: Mode
     private lateinit var latLng: LatLng
     private var existingTranslation: Translation? = null
+    private var currentSavedInstanceState: Bundle? = null
 
     private var originalText: String? = null
     private var translatedText: String? = null
@@ -55,15 +56,13 @@ class SaveEditTranslationFragment : NoNavFragment() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        if (fragmentMode == Mode.EDIT_MODE) {
-            val note = requireView().findViewById<EditText>(R.id.noteEdit).text.toString()
-            val location = requireView().findViewById<EditText>(R.id.locationEdit).text.toString()
-            if (existingTranslation?.note != note){
-                outState.putString("editedNote", note)
-            }
-            if (existingTranslation?.locationString != location){
-                outState.putString("editedLocation", location)
-            }
+        val note = requireView().findViewById<EditText>(R.id.noteEdit).text.toString()
+        val location = requireView().findViewById<EditText>(R.id.locationEdit).text.toString()
+        if (existingTranslation?.note != note){
+            outState.putString("editedNote", note)
+        }
+        if (existingTranslation?.locationString != location){
+            outState.putString("editedLocation", location)
         }
     }
 
@@ -90,6 +89,7 @@ class SaveEditTranslationFragment : NoNavFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        currentSavedInstanceState = savedInstanceState
         val mainActivity = activity as MainActivity
         mainActivity.setLocation(MainActivity.Location.SAVE_EDIT_TRANSLATION)
         mainActivity.supportActionBar!!.show()
@@ -152,7 +152,7 @@ class SaveEditTranslationFragment : NoNavFragment() {
                     latLng,
                     note
                 )
-                if (validateTranslation(originalText, locationString, latLng)){
+                if (validateTranslation(originalText, locationString)){
                     viewModel.addTranslation(translation)
                             findNavController().navigate(R.id.action_navigation_saveEdit_to_navigation_home)
                 } else {
@@ -189,7 +189,7 @@ class SaveEditTranslationFragment : NoNavFragment() {
         }
     }
 
-    private fun validateTranslation(originalTextString: String, locationString: String, latLng: LatLng): Boolean {
+    private fun validateTranslation(originalTextString: String, locationString: String): Boolean {
         return originalTextString.isNotEmpty() && validateLocation(locationString)
     }
 
@@ -253,10 +253,8 @@ class SaveEditTranslationFragment : NoNavFragment() {
         if (note != existingTranslation?.note){
             existingTranslation?.note = note
             changeOccurred = true
-            Log.d("Test:", "Note was updated")
         }
         if (changeOccurred){
-            Log.d("Test:", "Translation is being updated")
             existingTranslation?.let { it1 -> viewModel.editTranslation(it1) }
         }
         (requireActivity() as MainActivity).translationSaved()
@@ -276,23 +274,28 @@ class SaveEditTranslationFragment : NoNavFragment() {
         }
     }
 
-
     private fun fillNew(originalTextString: String, translatedTextString: String){
         this.originalText = originalTextString
         this.translatedText = translatedTextString
         val originalText = requireView().findViewById<EditText>(R.id.originalTextEdit)
         val translatedText = requireView().findViewById<TextView>(R.id.translatedText)
+        val location = requireView().findViewById<EditText>(R.id.locationEdit)
         val date = requireView().findViewById<TextView>(R.id.date)
 
-        setCurrentLocation()
+
+        if (currentSavedInstanceState == null || currentSavedInstanceState?.containsKey("editedLocation") == false){
+            setCurrentLocation()
+        } else {
+            location.setText(currentSavedInstanceState?.getString("editedLocation"))
+            convertLocationToLatLng(location.text.toString())?.let { it -> latLng = it }
+        }
 
         date.text = LocalDate.now().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT))
         originalText.setText(originalTextString)
+        translatedText.text = translatedTextString
         originalText.doAfterTextChanged {
             sendRequest(it.toString())
         }
-        translatedText.text = translatedTextString
-
     }
 
     private fun createLongToast(string: String){
@@ -316,6 +319,8 @@ class SaveEditTranslationFragment : NoNavFragment() {
             translatedText.text = existingTranslation!!.translatedText
             if(location.text.isEmpty()) {
                 location.setText(existingTranslation!!.locationString)
+            } else {
+                convertLocationToLatLng(location.text.toString())?.let { it -> latLng = it }
             }
             date.text = existingTranslation!!.date.format(
                 DateTimeFormatter.ofLocalizedDate(
