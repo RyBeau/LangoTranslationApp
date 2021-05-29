@@ -42,6 +42,8 @@
     <string name="delete">Delete</string>
     <string name="back_not_allowed">Back Not Allowed</string>
     <string name="delete_confirmation">Are you sure you want to delete this translation?</string>
+    <string name="location_not_found">The entered location could not be found, would you like to reset it?</string>
+    <string name="invalid_entries">Some Entries are Invalid</string>
     <!-- Preferences -->
 
     <string name="notifications_header">Notifications</string>

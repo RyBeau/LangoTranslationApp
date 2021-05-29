@@ -42,7 +42,6 @@ import kotlin.jvm.Throws
 
 class HomeFragment : NavFragment() {
 
-    private var totalItemsSeen: Int = 0
     private val viewModel: TranslationsViewModel by activityViewModels() {
         TranslationsViewModelFactory((activity?.application as TBCApplication).repository)
     }
@@ -191,6 +190,7 @@ class HomeFragment : NavFragment() {
      */
     @SuppressLint("PotentialBehaviorOverride")
     fun loadAllTranslations() {
+        var totalItemsSeen = 0
         viewModel.translationsList.observe(viewLifecycleOwner) { newTranslations ->
             for (translation in newTranslations) {
 
@@ -252,6 +252,7 @@ class HomeFragment : NavFragment() {
         val view = inflater.inflate(R.layout.fragment_home, container, false)
         val mainActivity = activity as MainActivity
         mainActivity.setLocation(MainActivity.Location.HOME)
+        mainActivity.supportActionBar!!.show()
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
         locationCallback = object : LocationCallback() {

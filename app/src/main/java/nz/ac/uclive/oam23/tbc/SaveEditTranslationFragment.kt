@@ -4,10 +4,11 @@ import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.location.Geocoder
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
-import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
@@ -15,7 +16,6 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.android.volley.AuthFailureError
@@ -25,9 +25,6 @@ import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.android.material.internal.NavigationMenu
-import com.google.android.material.navigation.NavigationView
 import com.google.gson.JsonParser
 import org.json.JSONArray
 import org.json.JSONObject
@@ -44,13 +41,14 @@ class SaveEditTranslationFragment : NoNavFragment() {
         NEW_MODE
     }
 
-    private val viewModel: TranslationsViewModel by activityViewModels() {
+    private val viewModel: TranslationsViewModel by activityViewModels {
         TranslationsViewModelFactory((activity?.application as TBCApplication).repository)
     }
 
     private lateinit var fragmentMode: Mode
     private lateinit var latLng: LatLng
     private var existingTranslation: Translation? = null
+    private var currentSavedInstanceState: Bundle? = null
 
     private var originalText: String? = null
     private var translatedText: String? = null
@@ -58,15 +56,13 @@ class SaveEditTranslationFragment : NoNavFragment() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        if (fragmentMode == Mode.EDIT_MODE) {
-            val note = requireView().findViewById<EditText>(R.id.noteEdit).text.toString()
-            val location = requireView().findViewById<EditText>(R.id.locationEdit).text.toString()
-            if (existingTranslation?.note != note){
-                outState.putString("editedNote", note)
-            }
-            if (existingTranslation?.locationString != location){
-                outState.putString("editedLocation", location)
-            }
+        val note = requireView().findViewById<EditText>(R.id.noteEdit).text.toString()
+        val location = requireView().findViewById<EditText>(R.id.locationEdit).text.toString()
+        if (existingTranslation?.note != note){
+            outState.putString("editedNote", note)
+        }
+        if (existingTranslation?.locationString != location){
+            outState.putString("editedLocation", location)
         }
     }
 
@@ -93,6 +89,7 @@ class SaveEditTranslationFragment : NoNavFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        currentSavedInstanceState = savedInstanceState
         val mainActivity = activity as MainActivity
         mainActivity.setLocation(MainActivity.Location.SAVE_EDIT_TRANSLATION)
         mainActivity.supportActionBar!!.show()
@@ -120,9 +117,10 @@ class SaveEditTranslationFragment : NoNavFragment() {
                 (requireActivity() as AppCompatActivity).supportActionBar!!.title = getString(R.string.title_save_translation)
             }
         } else {
-            errorToast()
+            createLongToast(getString(R.string.error))
             requireActivity().onBackPressed()
         }
+        setFocusChangeCallbacks(view)
         setButtonCallbacks(view)
     }
 
@@ -154,8 +152,12 @@ class SaveEditTranslationFragment : NoNavFragment() {
                     latLng,
                     note
                 )
-                viewModel.addTranslation(translation)
-                findNavController().navigate(R.id.action_navigation_saveEdit_to_navigation_home)
+                if (validateTranslation(originalText, locationString)){
+                    viewModel.addTranslation(translation)
+                            findNavController().navigate(R.id.action_navigation_saveEdit_to_navigation_home)
+                } else {
+                    createLongToast(getString(R.string.invalid_entries))
+                }
             }
         } else {
             view.findViewById<Button>(R.id.deleteTranslationButton).isVisible = true
@@ -164,28 +166,120 @@ class SaveEditTranslationFragment : NoNavFragment() {
             }
             view.findViewById<Button>(R.id.saveEditTranslationButton).setOnClickListener {
                 updateExistingTranslation(requireView())
-                existingTranslation?.let { it1 -> viewModel.editTranslation(it1) }
-                (requireActivity() as MainActivity).translationSaved()
             }
         }
     }
 
-    private fun updateExistingTranslation(view: View){
+    private fun setFocusChangeCallbacks(view: View){
+        val locationEdit =  view.findViewById<EditText>(R.id.locationEdit)
+        locationEdit.onFocusChangeListener = View.OnFocusChangeListener { _, hasFocus ->
+            if (!hasFocus){
+                val newLatLng = convertLocationToLatLng(locationEdit.text.toString())
+                if (newLatLng != null) {
+                    latLng = newLatLng
+                }
+                setFocusableButtons(false)
+            } else {
+                setFocusableButtons(true)
+            }
+        }
+        val saveButton =  view.findViewById<Button>(R.id.saveEditTranslationButton)
+        val deleteButton =  view.findViewById<Button>(R.id.deleteTranslationButton)
+        val cancelButton =  view.findViewById<Button>(R.id.cancelEditTranslationButton)
+        setButtonToCloseKeyboard(saveButton)
+        setButtonToCloseKeyboard(deleteButton)
+        setButtonToCloseKeyboard(cancelButton)
+    }
+
+    private fun setButtonToCloseKeyboard(button: Button){
+        button.onFocusChangeListener = View.OnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) run {
+                val inputManager = (requireActivity().getSystemService(android.app.Activity.INPUT_METHOD_SERVICE) as InputMethodManager)
+                inputManager.hideSoftInputFromWindow(view?.windowToken, 0)
+            }
+        }
+    }
+
+    private fun setFocusableButtons(bool: Boolean){
+        requireView().findViewById<Button>(R.id.saveEditTranslationButton).isFocusableInTouchMode = bool
+        requireView().findViewById<Button>(R.id.deleteTranslationButton).isFocusableInTouchMode = bool
+        requireView().findViewById<Button>(R.id.cancelEditTranslationButton).isFocusableInTouchMode = bool
+    }
+
+    private fun validateTranslation(originalTextString: String, locationString: String): Boolean {
+        return originalTextString.isNotEmpty() && validateLocation(locationString)
+    }
+
+    private fun validateLocation(locationString: String): Boolean{
+        return convertLocationToLatLng(locationString) == latLng
+    }
+
+    private fun convertLocationToLatLng(locationString: String): LatLng? {
+        val geocoder = Geocoder(requireContext(), Locale.getDefault())
+        return if (locationString.isNotEmpty()){
+            val addresses = geocoder.getFromLocationName(locationString, 1)
+            if (addresses.isNotEmpty() && addresses[0] != null) {
+                LatLng(addresses[0].latitude, addresses[0].longitude)
+            } else {
+                resetLocationAlert()
+                null
+            }
+        } else {
+            resetLocationAlert()
+            null
+        }
+    }
+
+    private fun resetLocationAlert(){
+        val builder = AlertDialog.Builder(requireContext())
+        builder.setMessage(getString(R.string.location_not_found))
+                .setCancelable(false)
+                .setPositiveButton(R.string.yes) { _, _ ->
+                    resetLocation()
+                }
+                .setNegativeButton(R.string.no) { dialog, _ ->
+                    dialog.dismiss()
+                }
+        val alert = builder.create()
+        alert.show()
+    }
+
+    private fun resetLocation(){
+        if (fragmentMode == Mode.NEW_MODE){
+            setCurrentLocation()
+        } else {
+            val location = requireView().findViewById<EditText>(R.id.locationEdit)
+            latLng = existingTranslation?.locationLatLng!!
+            location.setText(existingTranslation?.locationString)
+        }
+    }
+
+    private fun updateExistingTranslation(view: View) {
         val locationString = view.findViewById<EditText>(R.id.locationEdit).text.toString()
         val note = view.findViewById<EditText>(R.id.noteEdit).text.toString()
-        existingTranslation?.locationString = locationString
-        existingTranslation?.note = note
+        var changeOccurred = false
+        if(locationString != existingTranslation?.locationString){
+            if (validateLocation(locationString)){
+                existingTranslation?.locationLatLng = latLng
+                existingTranslation?.locationString = locationString
+                changeOccurred = true
+            } else {
+                return
+            }
+        }
+        if (note != existingTranslation?.note){
+            existingTranslation?.note = note
+            changeOccurred = true
+        }
+        if (changeOccurred){
+            existingTranslation?.let { it1 -> viewModel.editTranslation(it1) }
+        }
+        (requireActivity() as MainActivity).translationSaved()
     }
 
     @SuppressLint("MissingPermission")
-    private fun fillNew(originalTextString: String, translatedTextString: String){
-        this.originalText = originalTextString
-        this.translatedText = translatedTextString
-        val originalText = requireView().findViewById<EditText>(R.id.originalTextEdit)
-        val translatedText = requireView().findViewById<TextView>(R.id.translatedText)
+    private fun setCurrentLocation(){
         val location = requireView().findViewById<EditText>(R.id.locationEdit)
-        val date = requireView().findViewById<TextView>(R.id.date)
-
         val locationClient = LocationServices.getFusedLocationProviderClient(requireContext())
         locationClient.lastLocation.addOnSuccessListener {
             latLng = LatLng(it.latitude, it.longitude)
@@ -195,19 +289,36 @@ class SaveEditTranslationFragment : NoNavFragment() {
                     "${addressList[0].postalCode}, ${addressList[0].postalCode}"
             location.setText(locationString)
         }
+    }
+
+    private fun fillNew(originalTextString: String, translatedTextString: String){
+        this.originalText = originalTextString
+        this.translatedText = translatedTextString
+        val originalText = requireView().findViewById<EditText>(R.id.originalTextEdit)
+        val translatedText = requireView().findViewById<TextView>(R.id.translatedText)
+        val location = requireView().findViewById<EditText>(R.id.locationEdit)
+        val date = requireView().findViewById<TextView>(R.id.date)
+
+
+        if (currentSavedInstanceState == null || currentSavedInstanceState?.containsKey("editedLocation") == false){
+            setCurrentLocation()
+        } else {
+            location.setText(currentSavedInstanceState?.getString("editedLocation"))
+            convertLocationToLatLng(location.text.toString())?.let { it -> latLng = it }
+        }
+
         date.text = LocalDate.now().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT))
         originalText.setText(originalTextString)
+        translatedText.text = translatedTextString
         originalText.doAfterTextChanged {
             sendRequest(it.toString())
         }
-        translatedText.text = translatedTextString
-
     }
 
-    private fun errorToast(){
+    private fun createLongToast(string: String){
         Toast.makeText(
             requireActivity(),
-            getString(R.string.error),
+            string,
             Toast.LENGTH_LONG
         ).show()
     }
@@ -220,10 +331,13 @@ class SaveEditTranslationFragment : NoNavFragment() {
         val note = requireView().findViewById<EditText>(R.id.noteEdit)
 
         if (existingTranslation != null){
+            latLng = existingTranslation?.locationLatLng!!
             originalText.setText(existingTranslation!!.originalText)
             translatedText.text = existingTranslation!!.translatedText
             if(location.text.isEmpty()) {
                 location.setText(existingTranslation!!.locationString)
+            } else {
+                convertLocationToLatLng(location.text.toString())?.let { it -> latLng = it }
             }
             date.text = existingTranslation!!.date.format(
                 DateTimeFormatter.ofLocalizedDate(
@@ -236,7 +350,7 @@ class SaveEditTranslationFragment : NoNavFragment() {
 
             originalText.isEnabled = false
         } else {
-            errorToast()
+            createLongToast(getString(R.string.error))
             requireActivity().onBackPressed()
         }
     }
@@ -283,7 +397,7 @@ class SaveEditTranslationFragment : NoNavFragment() {
                     }
                     view?.findViewById<TextView>(R.id.translatedText)?.setText(translationResponse)
                 }, Response.ErrorListener {
-                    errorToast()
+                    createLongToast(getString(R.string.error))
                     findNavController().navigate(R.id.action_navigation_saveEdit_to_navigation_home)
                 }) {
 
