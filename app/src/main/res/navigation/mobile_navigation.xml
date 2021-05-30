@@ -81,9 +81,9 @@
             android:id="@+id/action_navigation_viewTranslation_to_navigation_saveEdit"
             app:destination="@id/navigation_saveEdit" />
         <action
-            android:id="@+id/action_navigation_saveEdit_to_navigation_home"
-            app:destination="@id/navigation_home"
-            app:popUpTo="@id/navigation_home"
+            android:id="@+id/action_navigation_saveEdit_to_navigation_previous"
+            app:destination="@id/navigation_previous"
+            app:popUpTo="@id/navigation_previous"
             app:popUpToInclusive="true" />
         <argument
             android:name="translationKey"

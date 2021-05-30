@@ -154,7 +154,7 @@ class SaveEditTranslationFragment : NoNavFragment() {
                 )
                 if (validateTranslation(translation.originalText, translation.locationString, translation.locationLatLng)){
                     viewModel.addTranslation(translation)
-                            findNavController().navigate(R.id.action_navigation_saveEdit_to_navigation_home)
+                            findNavController().navigate(R.id.action_navigation_saveEdit_to_navigation_previous)
                 } else {
                     createLongToast(getString(R.string.invalid_entries))
                 }
@@ -166,7 +166,7 @@ class SaveEditTranslationFragment : NoNavFragment() {
             }
             view.findViewById<Button>(R.id.saveEditTranslationButton).setOnClickListener {
                 updateExistingTranslation(requireView())
-                findNavController().navigate(R.id.action_navigation_saveEdit_to_navigation_home)
+                findNavController().navigate(R.id.action_navigation_saveEdit_to_navigation_previous)
             }
         }
     }
