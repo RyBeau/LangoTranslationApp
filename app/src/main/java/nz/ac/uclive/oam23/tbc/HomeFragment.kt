@@ -36,6 +36,7 @@ import com.google.android.gms.tasks.Task
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.io.File
 import java.io.IOException
+import java.lang.Exception
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.jvm.Throws
@@ -212,9 +213,13 @@ class HomeFragment : NavFragment() {
                 //Set up window handler
                 googleMapRef.setOnInfoWindowClickListener { marker ->
                     val viewModelPosition = marker.tag as Int
-                    viewModel.setSelectedIndex(viewModelPosition)
-                    val bundle = bundleOf("translationKey" to (viewModel.translationsList.value!![viewModelPosition].id))
-                    findNavController().navigate(R.id.action_navigation_home_to_viewTranslation, bundle)
+                    try {
+                        viewModel.setSelectedIndex(viewModelPosition)
+                        val bundle = bundleOf("translationKey" to (viewModel.translationsList.value!![viewModelPosition].id))
+                        findNavController().navigate(R.id.action_navigation_home_to_viewTranslation, bundle)
+                    } catch (e: Exception) {
+                        Toast.makeText(requireContext(), "Error, please refresh the page and try again!", Toast.LENGTH_LONG).show()
+                    }
                 }
 
             }

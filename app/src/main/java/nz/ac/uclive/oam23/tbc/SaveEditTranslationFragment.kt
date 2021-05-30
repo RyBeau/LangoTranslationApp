@@ -166,6 +166,7 @@ class SaveEditTranslationFragment : NoNavFragment() {
             }
             view.findViewById<Button>(R.id.saveEditTranslationButton).setOnClickListener {
                 updateExistingTranslation(requireView())
+                findNavController().navigate(R.id.action_navigation_saveEdit_to_navigation_home)
             }
         }
     }
